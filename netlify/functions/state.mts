@@ -24,6 +24,9 @@ function store() {
 }
 
 export default async (req: Request, context: Context) => {
+  const url = new URL(req.url);
+  const versionOnly = url.searchParams.get("versionOnly") === "1";
+
   if (req.method === "GET") {
     const doc = (await store().get(KEY, { type: "json" })) as StoredDoc | null;
     if (!doc) {
@@ -33,8 +36,14 @@ export default async (req: Request, context: Context) => {
       // rejected as a false 409 conflict forever (every retry recomputes the
       // same mismatch, since nothing ever actually gets written).
       const fresh: StoredDoc = { version: 0, state: emptyState(), updatedAt: new Date().toISOString() };
+      if (versionOnly) return new Response(JSON.stringify({ version: fresh.version }), { headers: { "content-type": "application/json" } });
       return new Response(JSON.stringify(fresh), { headers: { "content-type": "application/json" } });
     }
+    // versionOnly lets the client's poll loop check "did anything change?"
+    // without re-downloading clientes/tapas/fotos every time — the photos in
+    // particular make the full document expensive to keep re-sending every
+    // 18 seconds from every open phone when nothing new happened.
+    if (versionOnly) return new Response(JSON.stringify({ version: doc.version }), { headers: { "content-type": "application/json" } });
     return new Response(JSON.stringify(doc), { headers: { "content-type": "application/json" } });
   }
 
