@@ -536,6 +536,16 @@
     if(vars){ Object.keys(vars).forEach(function(k){ s = s.split('{'+k+'}').join(String(vars[k])); }); }
     return s;
   }
+  /* always-English lookup, regardless of the device's current display language —
+     used only when building the email archive sent on job completion, so the
+     record in the shop's inbox is consistent no matter who approved the job
+     or what language their phone was set to. */
+  function trEn(key){
+    var d = TR.en;
+    if(d[key]!==undefined) return d[key];
+    if(TR.es[key]!==undefined) return TR.es[key];
+    return key;
+  }
 
   /* ============ constants ============ */
   var STAGE_KEYS = ['material','templado','corte','fabricacion','pulido','instalacion','aprobacion'];
@@ -742,15 +752,15 @@
       cliente: { nombre: c?c.nombre:'', telefono: c?c.telefono:'', direccion: c?c.direccion:'' },
       tapa: {
         etiqueta: t.etiqueta,
-        ambiente: ambienteLabel(t.ambiente),
-        material: materialLabel(t.material.tipo) + (t.material.color?' — '+t.material.color:''),
+        ambiente: t.ambiente ? trEn('ambiente.'+t.ambiente) : '—',
+        material: (t.material.tipo ? trEn('material.'+t.material.tipo) : '—') + (t.material.color?' — '+t.material.color:''),
         materialSerial: t.material.serial||'',
         materialUbicacion: t.material.ubicacion||'',
         espesor: espesorLabel(t.espesor),
         backsplash: !!t.backsplash,
         backsplashMedida: t.backsplashMedida||'',
-        perfil: perfilLabel(t.perfil),
-        sink: t.sink ? sinkLabel(t.sinkTipo) : '',
+        perfil: t.perfil ? trEn('perfil.'+t.perfil) : '—',
+        sink: t.sink ? trEn('sink.'+t.sinkTipo) : '',
         huecos: t.huecos||0,
         medidasFinales: t.medidasFinales||'',
         fechaTemplado: t.fechaTemplado||'',
@@ -762,8 +772,8 @@
           var e = t.etapas[s.key];
           var w2 = e.encargadoId ? workerById(e.encargadoId) : null;
           return {
-            label: stageLabel(s.key),
-            estado: tr('stage.'+e.estado),
+            label: trEn('stage.'+s.key+'.label'),
+            estado: trEn('stage.'+e.estado),
             responsable: w2?w2.nombre:'',
             inicio: e.inicio||'',
             fin: e.fin||'',

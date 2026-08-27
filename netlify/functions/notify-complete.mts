@@ -60,39 +60,39 @@ export default async (req: Request, context: Context) => {
   let html = `<div style="font-family:Arial,Helvetica,sans-serif;color:#2a231c;">`;
   html += `<h2 style="margin:0 0 12px;">${escapeHtml(c.nombre)} — ${escapeHtml(t.etiqueta)}</h2>`;
   html += `<table style="border-collapse:collapse;font-size:14px;">`;
-  html += row("Cliente", c.nombre);
-  html += row("Teléfono", c.telefono);
-  html += row("Dirección", c.direccion);
-  html += row("Ambiente", t.ambiente);
+  html += row("Client", c.nombre);
+  html += row("Phone", c.telefono);
+  html += row("Address", c.direccion);
+  html += row("Room / area", t.ambiente);
   html += row("Material", t.material);
-  html += row("Serial del material", t.materialSerial);
-  html += row("Ubicación del material", t.materialUbicacion);
-  html += row("Espesor", t.espesor);
-  html += row("Backsplash", t.backsplash ? `Sí — ${t.backsplashMedida || "sin medida"}` : "");
-  html += row("Perfil", t.perfil);
+  html += row("Material serial number", t.materialSerial);
+  html += row("Material location (warehouse)", t.materialUbicacion);
+  html += row("Thickness", t.espesor);
+  html += row("Backsplash", t.backsplash ? `Yes — ${t.backsplashMedida || "no measurement on file"}` : "");
+  html += row("Edge profile", t.perfil);
   html += row("Sink", t.sink);
-  html += row("Huecos para llaves", t.huecos);
-  html += row("Medidas finales", t.medidasFinales);
-  html += row("Fecha de templado", t.fechaTemplado);
-  html += row("Fecha inicio fabricación", t.fechaInicioFabricacion);
-  html += row("Fecha de instalación", t.fechaInstalacion);
-  html += row("Instalador", t.instalador);
-  html += row("Notas", t.notas);
+  html += row("Faucet holes", t.huecos);
+  html += row("Final measurements", t.medidasFinales);
+  html += row("Template date", t.fechaTemplado);
+  html += row("Fabrication start date", t.fechaInicioFabricacion);
+  html += row("Installation date", t.fechaInstalacion);
+  html += row("Installer", t.instalador);
+  html += row("Notes", t.notas);
   html += `</table>`;
 
-  html += `<h3 style="margin:22px 0 8px;">Historial por etapa</h3>`;
+  html += `<h3 style="margin:22px 0 8px;">Stage history</h3>`;
   for (const e of etapas) {
     html += `<div style="margin-bottom:12px;">`;
     html += `<b>${escapeHtml(e.label)}</b> — ${escapeHtml(e.estado)}`;
     if (e.responsable) html += ` · ${escapeHtml(e.responsable)}`;
-    if (e.inicio) html += ` · inicio ${escapeHtml(e.inicio)}`;
-    if (e.fin) html += ` · fin ${escapeHtml(e.fin)}`;
+    if (e.inicio) html += ` · started ${escapeHtml(e.inicio)}`;
+    if (e.fin) html += ` · finished ${escapeHtml(e.fin)}`;
     html += `</div>`;
     for (const cm of e.comentarios || []) {
       html += `<div style="margin:2px 0 2px 14px;font-size:13px;color:#5a4d3d;">💬 <i>${escapeHtml(cm.autor)}:</i> ${escapeHtml(cm.texto)}</div>`;
     }
   }
-  html += `<p style="margin-top:24px;color:#8a7a66;font-size:12px;">Enviado automáticamente por Control de Tapas al completar el trabajo. Las fotos van adjuntas a este correo.</p>`;
+  html += `<p style="margin-top:24px;color:#8a7a66;font-size:12px;">Automatically sent by Control de Tapas when this job was marked complete. Photos are attached to this email.</p>`;
   html += `</div>`;
 
   const attachments: { filename: string; content: string }[] = [];
@@ -111,7 +111,7 @@ export default async (req: Request, context: Context) => {
     body: JSON.stringify({
       from: "Control de Tapas <onboarding@resend.dev>",
       to: [to],
-      subject: `Trabajo completado — ${t.etiqueta ? t.etiqueta + " — " : ""}${c.nombre || ""}`,
+      subject: `Job completed — ${t.etiqueta ? t.etiqueta + " — " : ""}${c.nombre || ""}`,
       html,
       attachments,
     }),
