@@ -402,6 +402,10 @@
       'stage.material.label':'Selección de material', 'stage.material.short':'Material',
       'stage.templado.label':'Plantilla (templado)', 'stage.templado.short':'Templado',
       'stage.corte.label':'Corte', 'stage.corte.short':'Corte',
+      'corte.sobranteLegend':'Material sobrante', 'corte.si':'Sí', 'corte.no':'No',
+      'corte.sobranteCantidad':'Cantidad sobrante', 'corte.sobranteCantidadPh':'Ej. 2 pies × 3 pies',
+      'corte.sobranteUbicacion':'¿Dónde se guardó?', 'corte.sobranteUbicacionPh':'Ej. Estante B-3',
+      'spec.sobranteMaterial':'Material sobrante', 'spec.sobranteCantidad':'Cantidad sobrante', 'spec.sobranteUbicacion':'Ubicación del sobrante',
       'stage.fabricacion.label':'Fabricación', 'stage.fabricacion.short':'Fabricación',
       'stage.pulido.label':'Pulido', 'stage.pulido.short':'Pulido',
       'stage.instalacion.label':'Instalación', 'stage.instalacion.short':'Instalación',
@@ -545,6 +549,10 @@
       'stage.material.label':'Material selection', 'stage.material.short':'Material',
       'stage.templado.label':'Template', 'stage.templado.short':'Template',
       'stage.corte.label':'Cutting', 'stage.corte.short':'Cutting',
+      'corte.sobranteLegend':'Leftover material', 'corte.si':'Yes', 'corte.no':'No',
+      'corte.sobranteCantidad':'Leftover amount', 'corte.sobranteCantidadPh':'E.g. 2 ft × 3 ft',
+      'corte.sobranteUbicacion':'Where was it stored?', 'corte.sobranteUbicacionPh':'E.g. Shelf B-3',
+      'spec.sobranteMaterial':'Leftover material', 'spec.sobranteCantidad':'Leftover amount', 'spec.sobranteUbicacion':'Leftover location',
       'stage.fabricacion.label':'Fabrication', 'stage.fabricacion.short':'Fabrication',
       'stage.pulido.label':'Polishing', 'stage.pulido.short':'Polishing',
       'stage.instalacion.label':'Installation', 'stage.instalacion.short':'Installation',
@@ -926,6 +934,9 @@
         fechaInstalacion: t.fechaInstalacion||'',
         instalador: instalador?instalador.nombre:'',
         notas: t.notas||'',
+        sobranteMaterial: t.sobranteMaterial||'',
+        sobranteCantidad: t.sobranteCantidad||'',
+        sobranteUbicacion: t.sobranteUbicacion||'',
         etapas: STAGES.map(function(s){
           var e = t.etapas[s.key];
           var w2 = e.encargadoId ? workerById(e.encargadoId) : null;
@@ -1294,6 +1305,9 @@
         '<label class="check-row"><input type="checkbox" name="t'+idx+'_backsplash" '+(v.backsplash?'checked':'')+'> '+esc(tr('field.backsplash'))+'</label>' +
         selectField(tr('field.profile'),'t'+idx+'_perfil', keyOptions(PERFIL_KEYS, perfilLabel), v.perfil) +
       '</div>' +
+      '<div class="grid2">' +
+        field(tr('field.backsplashMedida'),'text','t'+idx+'_backsplashMedida',tr('field.backsplashMedidaPh'),{value:v.backsplashMedida}) +
+      '</div>' +
       '<div class="grid3">' +
         '<label class="check-row"><input type="checkbox" name="t'+idx+'_sink" '+(v.sink?'checked':'')+'> '+esc(tr('field.sink'))+'</label>' +
         selectField(tr('field.sinkType'),'t'+idx+'_sinkTipo', keyOptions(SINK_KEYS, sinkLabel), v.sinkTipo) +
@@ -1474,6 +1488,13 @@
       '</div>' +
       selectField(tr('field.installer'),'instalador', [{value:'',label:tr('field.installerLater')}].concat(workersByRole('instalador').map(function(w){return {value:w.id,label:w.nombre};})), t.instaladorId) +
       textareaField(tr('field.notes'),'notas',tr('field.notesPh'), t.notas) +
+      '<fieldset><legend>'+esc(tr('corte.sobranteLegend'))+'</legend><div style="display:flex; flex-direction:column; gap:10px;">' +
+        radioRow('sobranteMaterial',[['si',tr('corte.si')],['no',tr('corte.no')]]) +
+        '<div class="grid2">' +
+          field(tr('corte.sobranteCantidad'),'text','sobranteCantidad',tr('corte.sobranteCantidadPh'),{value:t.sobranteCantidad}) +
+          field(tr('corte.sobranteUbicacion'),'text','sobranteUbicacion',tr('corte.sobranteUbicacionPh'),{value:t.sobranteUbicacion}) +
+        '</div>' +
+      '</div></fieldset>' +
       '<div class="btn-row">' +
         '<button class="btn btn-primary btn-sm" type="submit">'+esc(tr('tapa.save'))+'</button>' +
         '<button class="btn btn-sm btn-ghost" type="button" data-action="cancel-edit-tapa">'+esc(tr('tapa.cancel'))+'</button>' +
@@ -1529,6 +1550,9 @@
         specItem(tr('spec.fabricacionDate'), t.fechaInicioFabricacion?fmtDate(t.fechaInicioFabricacion):'—') +
         specItem(tr('spec.installDate'), fmtDate(t.fechaInstalacion)) +
         specItem(tr('spec.installer'), t.instaladorId? (workerById(t.instaladorId)?workerById(t.instaladorId).nombre:'—') : tr('spec.unassigned')) +
+        (t.sobranteMaterial ? specItem(tr('spec.sobranteMaterial'), t.sobranteMaterial==='si'?tr('spec.yes'):tr('spec.no')) : '') +
+        (t.sobranteMaterial==='si' ? specItem(tr('spec.sobranteCantidad'), t.sobranteCantidad||'—') : '') +
+        (t.sobranteMaterial==='si' ? specItem(tr('spec.sobranteUbicacion'), t.sobranteUbicacion||'—') : '') +
       '</div>' + (t.notas?('<div style="padding:0 16px 14px; font-size:13px; color:var(--text-muted);"><b>'+esc(tr('spec.notes'))+'</b> '+esc(t.notas)+'</div>'):'') + '</div>' +
       '<div class="timeline">' + STAGES.map(function(s,i){ return tlStage(t, s, i, w, isAdminView); }).join('') + '</div>'
     ;
@@ -1576,6 +1600,15 @@
         field(tr('field.materialSerial'),'text','materialSerial',tr('field.materialSerialPh'),{value:t.material.serial}) +
         field(tr('field.materialUbicacion'),'text','materialUbicacion',tr('field.materialUbicacionPh'),{value:t.material.ubicacion}) +
       '</div>';
+    }
+    if(key==='corte'){
+      extra = '<fieldset><legend>'+esc(tr('corte.sobranteLegend'))+'</legend><div style="display:flex; flex-direction:column; gap:10px;">' +
+        radioRow('sobranteMaterial',[['si',tr('corte.si')],['no',tr('corte.no')]]) +
+        '<div class="grid2">' +
+          field(tr('corte.sobranteCantidad'),'text','sobranteCantidad',tr('corte.sobranteCantidadPh'),{value:t.sobranteCantidad}) +
+          field(tr('corte.sobranteUbicacion'),'text','sobranteUbicacion',tr('corte.sobranteUbicacionPh'),{value:t.sobranteUbicacion}) +
+        '</div>' +
+      '</div></fieldset>';
     }
     if(key==='aprobacion'){
       return '' +
@@ -1831,7 +1864,7 @@
     blocks.forEach(function(b){
       var idx = b.getAttribute('data-tapa-idx');
       function g(n){ var f=b.querySelector('[name="t'+idx+'_'+n+'"]'); return f?(f.type==='checkbox'?f.checked:f.value):undefined; }
-      result.push({ etiqueta:g('etiqueta'), ambiente:g('ambiente'), materialTipo:g('materialTipo'), materialColor:g('materialColor'), espesor:g('espesor'), backsplash:g('backsplash'), perfil:g('perfil'), sink:g('sink'), sinkTipo:g('sinkTipo'), huecos:g('huecos'), fechaTemplado:g('fechaTemplado'), fechaFabricacion:g('fechaFabricacion'), fecha:g('fecha'), instalador:g('instalador'), notas:g('notas') });
+      result.push({ etiqueta:g('etiqueta'), ambiente:g('ambiente'), materialTipo:g('materialTipo'), materialColor:g('materialColor'), espesor:g('espesor'), backsplash:g('backsplash'), backsplashMedida:g('backsplashMedida'), perfil:g('perfil'), sink:g('sink'), sinkTipo:g('sinkTipo'), huecos:g('huecos'), fechaTemplado:g('fechaTemplado'), fechaFabricacion:g('fechaFabricacion'), fecha:g('fecha'), instalador:g('instalador'), notas:g('notas') });
     });
     newClienteTapas = result;
   }
@@ -1871,7 +1904,7 @@
             id:uid('t'), clienteId:cliente.id,
             etiqueta:b.etiqueta || trf('nuevo.tapaEyebrow',{n:i+1}),
             ambiente:b.ambiente||'', material:{tipo:b.materialTipo||'granito', color:b.materialColor||'', serial:'', ubicacion:''},
-            espesor:b.espesor||'2cm', backsplash: !!b.backsplash, backsplashMedida:'', perfil:b.perfil||'', sink: !!b.sink, sinkTipo: b.sink? (b.sinkTipo||''):'',
+            espesor:b.espesor||'2cm', backsplash: !!b.backsplash, backsplashMedida: b.backsplash ? (b.backsplashMedida||'') : '', perfil:b.perfil||'', sink: !!b.sink, sinkTipo: b.sink? (b.sinkTipo||''):'',
             huecos: parseInt(b.huecos||0,10)||0,
             fechaTemplado:b.fechaTemplado||'', fechaInicioFabricacion:b.fechaFabricacion||'', fechaInstalacion:b.fecha||'', instaladorId:b.instalador||null,
             notas:b.notas||'', creadoEn:nowISO(), etapas:newTapaEtapas()
@@ -1916,6 +1949,10 @@
         t.fechaInstalacion = fd.get('fecha') || t.fechaInstalacion;
         t.instaladorId = fd.get('instalador') || null;
         t.notas = fd.get('notas') || '';
+        var editSobrante = fd.get('sobranteMaterial');
+        if(editSobrante!==null && editSobrante!==undefined) t.sobranteMaterial = editSobrante;
+        t.sobranteCantidad = fd.get('sobranteCantidad') || '';
+        t.sobranteUbicacion = fd.get('sobranteUbicacion') || '';
       });
       editingTapaId = null;
       render();
@@ -1973,10 +2010,16 @@
     var bsMedida = fd.get('backsplashMedida');
     var matSerial = fd.get('materialSerial');
     var matUbicacion = fd.get('materialUbicacion');
+    var sobrante = fd.get('sobranteMaterial');
+    var sobranteCant = fd.get('sobranteCantidad');
+    var sobranteUbic = fd.get('sobranteUbicacion');
     if(comentario && comentario.trim()) t.etapas[stage].comentarios.push({autor:currentWorker().nombre, texto:comentario.trim(), fecha:nowISO()});
     if(bsMedida!==null && bsMedida!==undefined && bsMedida.trim()) t.backsplashMedida = bsMedida.trim();
     if(matSerial!==null && matSerial!==undefined && matSerial.trim()) t.material.serial = matSerial.trim();
     if(matUbicacion!==null && matUbicacion!==undefined && matUbicacion.trim()) t.material.ubicacion = matUbicacion.trim();
+    if(sobrante!==null && sobrante!==undefined) t.sobranteMaterial = sobrante;
+    if(sobranteCant!==null && sobranteCant!==undefined && sobranteCant.trim()) t.sobranteCantidad = sobranteCant.trim();
+    if(sobranteUbic!==null && sobranteUbic!==undefined && sobranteUbic.trim()) t.sobranteUbicacion = sobranteUbic.trim();
   }
   function doStageStart(el){
     var tapaId=el.getAttribute('data-tapa'), stage=el.getAttribute('data-stage');
