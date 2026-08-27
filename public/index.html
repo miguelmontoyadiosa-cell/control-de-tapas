@@ -1,0 +1,1710 @@
+<title>Control de Tapas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef0ee;
+    --surface:#ffffff;
+    --surface-2:#f4f5f4;
+    --border:#d8dbd8;
+    --border-strong:#c2c6c2;
+    --text:#1a1e1f;
+    --text-muted:#5c6567;
+    --text-faint:#8a9294;
+    --accent:#b4632b;
+    --accent-strong:#8f4d22;
+    --accent-soft:#f3e3d4;
+    --accent-contrast:#fff8f2;
+    --ok:#2e7d4f; --ok-soft:#dceee2; --ok-strong:#1f5c39;
+    --info:#2b6cb0; --info-soft:#dce8f5; --info-strong:#1f4e82;
+    --danger:#b23a2e; --danger-soft:#f5dbd6; --danger-strong:#832a20; --danger-on:#fff8f6;
+    --neutral-chip:#e2e4e2; --neutral-chip-text:#565d5e;
+    --shadow: 0 1px 2px rgba(20,24,20,.06), 0 4px 14px rgba(20,24,20,.05);
+    --radius: 10px;
+    --font-display:'Big Shoulders Display', 'Arial Narrow', sans-serif;
+    --font-body:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14171a; --surface:#1b1f22; --surface-2:#20262a;
+      --border:#2b3236; --border-strong:#3a4247;
+      --text:#e9ecec; --text-muted:#a2acae; --text-faint:#727d80;
+      --accent:#d69a5b; --accent-strong:#e6ac72; --accent-soft:#3a2a1c; --accent-contrast:#1a1108;
+      --ok:#5fbd8b; --ok-soft:#173626; --ok-strong:#8fd6ae;
+      --info:#6fa8dc; --info-soft:#18293b; --info-strong:#9cc4ea;
+      --danger:#e2786a; --danger-soft:#3a201c; --danger-strong:#f0a196; --danger-on:#2a0f0b;
+      --neutral-chip:#282e31; --neutral-chip-text:#a2acae;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14171a; --surface:#1b1f22; --surface-2:#20262a;
+    --border:#2b3236; --border-strong:#3a4247;
+    --text:#e9ecec; --text-muted:#a2acae; --text-faint:#727d80;
+    --accent:#d69a5b; --accent-strong:#e6ac72; --accent-soft:#3a2a1c; --accent-contrast:#1a1108;
+    --ok:#5fbd8b; --ok-soft:#173626; --ok-strong:#8fd6ae;
+    --info:#6fa8dc; --info-soft:#18293b; --info-strong:#9cc4ea;
+    --danger:#e2786a; --danger-soft:#3a201c; --danger-strong:#f0a196; --danger-on:#2a0f0b;
+    --neutral-chip:#282e31; --neutral-chip-text:#a2acae;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--font-body);
+    font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+    min-height:100vh; overflow-x:hidden;
+  }
+  #app{min-height:100vh; display:flex; flex-direction:column;}
+  h1,h2,h3,h4{font-family:var(--font-display); font-weight:800; letter-spacing:.01em; text-wrap:balance; margin:0;}
+  button, input, select, textarea{font-family:inherit; font-size:inherit; color:inherit;}
+  button{cursor:pointer;}
+  a{color:var(--accent);}
+  ::selection{background:var(--accent-soft);}
+  .mono{font-family:var(--font-mono);}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+
+  /* ---------- layout shells ---------- */
+  .center-shell{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-strong));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
+  .brand-mark svg{width:19px;height:19px;}
+  .brand-name{font-family:var(--font-display); font-weight:800; font-size:19px; letter-spacing:.01em;}
+
+  /* language toggle */
+  .lang-toggle{display:inline-flex; gap:3px; background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:3px; flex-shrink:0;}
+  .lang-toggle button{border:none; background:transparent; border-radius:999px; padding:4px 10px; font-size:11px; font-weight:700; letter-spacing:.03em; color:var(--text-muted);}
+  .lang-toggle button.active{background:var(--accent); color:var(--accent-contrast);}
+
+  /* topbar */
+  .topbar{
+    position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 16px; flex-wrap:wrap;
+  }
+  .topbar .who{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .who-chip{display:flex; align-items:center; gap:8px; background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:5px 6px 5px 12px;}
+  .who-chip .name{font-weight:600; font-size:13px;}
+  .who-chip .role{font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;}
+  .icon-btn{background:transparent; border:1px solid var(--border); border-radius:999px; width:32px;height:32px; display:flex;align-items:center;justify-content:center; color:var(--text-muted); flex-shrink:0;}
+  .icon-btn:hover{background:var(--surface-2); color:var(--text);}
+  .save-indicator{font-size:11.5px; color:var(--text-faint); display:flex; align-items:center; gap:5px; white-space:nowrap;}
+  .save-dot{width:6px;height:6px;border-radius:50%;background:var(--text-faint);}
+  .save-indicator.ok .save-dot{background:var(--ok);}
+  .save-indicator.busy .save-dot{background:var(--info); animation:pulse 1s infinite;}
+  .save-indicator.err .save-dot{background:var(--danger);}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  /* tabs (admin nav) */
+  .tabbar{display:flex; gap:2px; padding:0 16px; background:var(--surface); border-bottom:1px solid var(--border); overflow-x:auto;}
+  .tabbar button{background:none;border:none;padding:11px 14px;font-weight:600;font-size:13.5px;color:var(--text-muted);border-bottom:2px solid transparent;white-space:nowrap;}
+  .tabbar button.active{color:var(--accent-strong); border-bottom-color:var(--accent);}
+  .tabbar button:hover{color:var(--text);}
+
+  .main{flex:1; width:100%; max-width:980px; margin:0 auto; padding:20px 16px 80px; display:flex; flex-direction:column; gap:18px;}
+  .main.wide{max-width:1180px;}
+
+  /* buttons */
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:7px; border-radius:8px; border:1px solid var(--border-strong); background:var(--surface); padding:10px 16px; font-weight:600; font-size:14px; color:var(--text); transition:filter .1s;}
+  .btn:hover{filter:brightness(0.97);}
+  :root[data-theme="dark"] .btn:hover, @media (prefers-color-scheme:dark){.btn:hover{filter:brightness(1.15);}}
+  .btn-primary{background:var(--accent); border-color:var(--accent-strong); color:var(--accent-contrast);}
+  .btn-primary:hover{background:var(--accent-strong);}
+  .btn-danger{background:var(--danger); border-color:var(--danger-strong); color:var(--danger-on);}
+  .btn-ghost{background:transparent; border-color:transparent; color:var(--text-muted);}
+  .btn-ghost:hover{background:var(--surface-2); color:var(--text);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:7px 12px; font-size:13px; border-radius:7px;}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap;}
+
+  /* forms */
+  label.field{display:flex; flex-direction:column; gap:6px; font-size:13.5px; font-weight:600; color:var(--text-muted);}
+  label.field span.hint{font-weight:400; color:var(--text-faint); font-size:12px;}
+  input[type=text],input[type=tel],input[type=number],input[type=date],input[type=password],select,textarea{
+    background:var(--surface); border:1px solid var(--border-strong); border-radius:8px; padding:9px 11px; color:var(--text); width:100%;
+  }
+  input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+  textarea{resize:vertical; min-height:64px; font-family:var(--font-body);}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;}
+  @media (max-width:640px){ .grid2,.grid3{grid-template-columns:1fr;} }
+  .check-row{display:flex; align-items:center; gap:9px; font-size:14px; font-weight:600;}
+  .check-row input{width:18px;height:18px;}
+  fieldset{border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px 16px; margin:0;}
+  legend{font-family:var(--font-display); font-weight:700; font-size:15px; padding:0 6px;}
+
+  /* section header */
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+  .section-head h2{font-size:22px;}
+  .eyebrow{font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--accent-strong);}
+
+  /* stat row */
+  .stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  @media (max-width:720px){.stat-row{grid-template-columns:repeat(2,1fr);}}
+  .stat{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px;}
+  .stat .num{font-family:var(--font-mono); font-size:26px; font-weight:600; font-variant-numeric:tabular-nums; line-height:1;}
+  .stat .lbl{font-size:12px; color:var(--text-muted); margin-top:5px;}
+  .stat.danger .num{color:var(--danger);}
+  .stat.info .num{color:var(--info);}
+
+  /* chips */
+  .chip{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:999px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap;}
+  .chip-pendiente{background:var(--neutral-chip); color:var(--neutral-chip-text);}
+  .chip-en_progreso{background:var(--info-soft); color:var(--info-strong);}
+  .chip-completado{background:var(--ok-soft); color:var(--ok-strong);}
+  .chip-con_falla{background:var(--danger-soft); color:var(--danger-strong);}
+  .chip-role{background:var(--accent-soft); color:var(--accent-strong);}
+
+  /* tapa card */
+  .tapa-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px 16px; display:flex; flex-direction:column; gap:10px; cursor:pointer;}
+  .tapa-card:hover{border-color:var(--border-strong);}
+  .tapa-card.falla{border-color:var(--danger); box-shadow:0 0 0 1px var(--danger) inset, var(--shadow);}
+  .tapa-card-top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start;}
+  .tapa-card-top .cliente{font-weight:700; font-size:15.5px;}
+  .tapa-card-top .tapa-label{font-size:12.5px; color:var(--text-muted);}
+  .tapa-meta{display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12.5px; color:var(--text-muted);}
+  .tapa-meta b{color:var(--text); font-weight:600;}
+
+  /* stepper */
+  .stepper{display:flex; align-items:center; gap:2px; overflow-x:auto; padding:2px 0;}
+  .step{display:flex; align-items:center; gap:2px; flex-shrink:0;}
+  .step .dot{width:11px;height:11px;border-radius:50%; border:2px solid var(--border-strong); background:var(--surface); flex-shrink:0;}
+  .step.completado .dot{background:var(--ok); border-color:var(--ok);}
+  .step.en_progreso .dot{background:var(--info); border-color:var(--info);}
+  .step.con_falla .dot{background:var(--danger); border-color:var(--danger);}
+  .step .lbl{font-size:10.5px; color:var(--text-faint); margin:0 6px 0 4px; white-space:nowrap;}
+  .step.completado .lbl,.step.en_progreso .lbl,.step.con_falla .lbl{color:var(--text-muted);}
+  .step-line{width:16px;height:2px;background:var(--border-strong); flex-shrink:0;}
+  .step-line.done{background:var(--ok);}
+
+  /* task list (worker) */
+  .task-item{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px; display:flex; flex-direction:column; gap:8px; cursor:pointer;}
+  .task-item.falla{border-color:var(--danger);}
+  .task-item .top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .task-item .cliente{font-weight:700; font-size:16.5px;}
+  .task-item .sub{font-size:13px; color:var(--text-muted);}
+  .empty-state{text-align:center; padding:50px 20px; color:var(--text-muted);}
+  .empty-state .glyph{font-size:34px; margin-bottom:8px;}
+
+  /* detail page */
+  .detail-head{display:flex; flex-direction:column; gap:10px;}
+  .back-link{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--text-muted); background:none; border:none; padding:0; align-self:flex-start;}
+  .back-link:hover{color:var(--text);}
+  .spec-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px 18px; font-size:13.5px;}
+  .spec-grid .k{color:var(--text-faint); font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px;}
+  .spec-grid .v{font-weight:600;}
+
+  .timeline{display:flex; flex-direction:column; gap:10px;}
+  .tl-stage{border:1px solid var(--border); border-radius:var(--radius); background:var(--surface); overflow:hidden;}
+  .tl-stage.current{border-color:var(--accent-strong); box-shadow:0 0 0 1px var(--accent-strong) inset;}
+  .tl-stage.falla{border-color:var(--danger);}
+  .tl-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; background:var(--surface-2);}
+  .tl-head .left{display:flex; align-items:center; gap:10px;}
+  .tl-head .idx{font-family:var(--font-mono); font-size:12px; color:var(--text-faint); width:16px;}
+  .tl-head h4{font-size:14.5px; font-weight:700;}
+  .tl-body{padding:14px; display:flex; flex-direction:column; gap:12px;}
+  .tl-people{font-size:12px; color:var(--text-muted);}
+  .comment{background:var(--surface-2); border-radius:8px; padding:9px 11px; font-size:13px;}
+  .comment .meta{font-size:11px; color:var(--text-faint); margin-bottom:3px;}
+  .photo-grid{display:flex; flex-wrap:wrap; gap:8px;}
+  .photo-thumb{width:74px;height:74px; border-radius:7px; object-fit:cover; border:1px solid var(--border); cursor:pointer;}
+  .falla-box{background:var(--danger-soft); border:1px solid var(--danger); border-radius:8px; padding:10px 12px; font-size:13px;}
+  .falla-box b{color:var(--danger-strong);}
+
+  .lightbox{position:fixed; inset:0; background:rgba(10,12,10,.85); display:flex; align-items:center; justify-content:center; z-index:100; padding:24px;}
+  .lightbox img{max-width:100%; max-height:100%; border-radius:8px;}
+
+  .pin-pad{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; max-width:230px; margin:0 auto;}
+  .pin-pad button{padding:14px 0; font-size:19px; font-weight:600; border-radius:9px; background:var(--surface-2); border:1px solid var(--border);}
+  .pin-dots{display:flex; gap:10px; justify-content:center; margin:6px 0 2px;}
+  .pin-dot{width:13px;height:13px;border-radius:50%; border:2px solid var(--border-strong);}
+  .pin-dot.filled{background:var(--accent); border-color:var(--accent);}
+
+  .worker-pick{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px;}
+  .worker-pick button{display:flex; flex-direction:column; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 10px;}
+  .worker-pick button:hover{border-color:var(--accent);}
+  .avatar{width:44px;height:44px;border-radius:50%; background:var(--accent-soft); color:var(--accent-strong); display:flex;align-items:center;justify-content:center; font-weight:700; font-size:16px; font-family:var(--font-display);}
+  .worker-pick .nm{font-weight:600; font-size:13.5px; text-align:center;}
+  .worker-pick .rl{font-size:10.5px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em;}
+
+  .banner{border-radius:8px; padding:10px 13px; font-size:13px; display:flex; gap:8px; align-items:flex-start;}
+  .banner-danger{background:var(--danger-soft); color:var(--danger-strong); border:1px solid var(--danger);}
+  .banner-info{background:var(--info-soft); color:var(--info-strong); border:1px solid var(--info);}
+  .banner-ok{background:var(--ok-soft); color:var(--ok-strong); border:1px solid var(--ok);}
+
+  table.roster{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.roster th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); padding:8px 10px; border-bottom:1px solid var(--border);}
+  table.roster td{padding:9px 10px; border-bottom:1px solid var(--border);}
+  table.roster tr:last-child td{border-bottom:none;}
+
+  .tapa-repeat{border:1px dashed var(--border-strong); border-radius:var(--radius); padding:14px; display:flex; flex-direction:column; gap:12px; position:relative;}
+  .tapa-repeat .rm{position:absolute; top:10px; right:10px;}
+
+  .overlay{position:fixed; inset:0; background:rgba(10,12,10,.4); z-index:90; display:flex; align-items:flex-end; justify-content:center;}
+  @media (min-width:640px){ .overlay{align-items:center;} }
+  .sheet{background:var(--surface); width:100%; max-width:480px; max-height:88vh; overflow-y:auto; border-radius:14px 14px 0 0; padding:18px; display:flex; flex-direction:column; gap:12px;}
+  @media (min-width:640px){ .sheet{border-radius:14px;} }
+
+  .footnote{font-size:11.5px; color:var(--text-faint); line-height:1.5;}
+
+  /* preview-as-role banner */
+  .preview-banner{background:var(--accent-soft); border-bottom:2px solid var(--accent); color:var(--accent-strong); padding:9px 16px; font-size:13px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; position:sticky; top:53px; z-index:19;}
+  .preview-banner b{color:inherit;}
+  .photo-hint{font-size:12px; color:var(--text-faint); display:flex; align-items:center; gap:5px;}
+</style>
+
+<!-- state now lives server-side in Netlify Blobs, fetched at startup via /api/state -->
+<div id="app"></div>
+<div id="overlay-root"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ i18n ============ */
+  var TR = {
+    es: {
+      'brand.name':'Control de Tapas',
+      'nav.logout':'Salir', 'nav.exitPreview':'Salir de vista previa',
+      'boot.subtitle':'Primer ingreso. Crea la cuenta de administrador para empezar.',
+      'boot.name':'Tu nombre', 'boot.namePh':'Ej. Miguel Montoya',
+      'boot.pin':'PIN de 4 dígitos', 'boot.pin2':'Confirmar PIN',
+      'boot.submit':'Crear cuenta y entrar',
+      'boot.pinNote':'Este PIN evita que alguien actualice el trabajo de otra persona por error — no es una contraseña de alta seguridad, ya que la app vive dentro de un documento compartido.',
+      'login.title':'¿Quién eres?',
+      'login.empty':'Aún no hay trabajadores activos. Pide al administrador que los agregue en «Equipo».',
+      'pin.back':'← Elegir otra persona',
+      'pin.enter':'ingresa tu PIN',
+      'pin.wrong':'PIN incorrecto, intenta de nuevo.',
+      'pin.clear':'Borrar',
+      'tab.panel':'Panel', 'tab.nuevo':'Nuevo cliente', 'tab.clientes':'Clientes', 'tab.equipo':'Equipo',
+      'stat.activas':'Tapas activas', 'stat.falla':'Con falla', 'stat.hoy':'Instalaciones hoy', 'stat.semana':'Esta semana',
+      'panel.eyebrow':'Tablero', 'panel.title':'Tapas en producción',
+      'panel.search':'Buscar cliente…',
+      'panel.filterAll':'Todas', 'panel.filterFalla':'Con falla',
+      'panel.empty':'No hay tapas que coincidan.',
+      'card.install':'Instalación:', 'card.installer':'Instalador:', 'card.noInstaller':'Sin instalador asignado',
+      'card.today':'(hoy)', 'card.inDays':'(en {n} d)', 'card.overdue':'(atrasada)',
+      'estado.deliv':'Entregada', 'estado.fallaIn':'Con falla en {s}', 'estado.progress':'{s} en progreso', 'estado.pending':'{s} pendiente',
+      'nuevo.eyebrow':'Alta', 'nuevo.title':'Nuevo cliente y tapas',
+      'nuevo.clientLegend':'Cliente',
+      'field.fullName':'Nombre completo', 'field.phone':'Teléfono',
+      'field.address':'Dirección de instalación', 'field.addressPh':'Calle, número, ciudad',
+      'nuevo.tapaEyebrow':'Tapa {n}', 'nuevo.remove':'Quitar',
+      'field.location':'Nombre / ubicación', 'field.locationPh':'Ej. Cocina principal',
+      'field.room':'Ambiente', 'field.material':'Material',
+      'field.color':'Color / nombre comercial', 'field.colorPh':'Ej. Blue Pearl',
+      'field.thickness':'Espesor',
+      'field.backsplash':'Lleva backsplash', 'field.profile':'Perfil de polichado',
+      'field.sink':'Lleva sink', 'field.sinkType':'Tipo de sink',
+      'field.faucetHoles':'Huecos para llaves',
+      'field.templadoDate':'Fecha de templado', 'field.fabricacionDate':'Fecha de inicio de fabricación',
+      'field.installDate':'Fecha de instalación', 'field.installer':'Instalador asignado',
+      'field.installerLater':'— Definir después —',
+      'field.materialSerial':'Serial del material', 'field.materialSerialPh':'Ej. LOTE-4521',
+      'field.materialUbicacion':'Ubicación del material', 'field.materialUbicacionPh':'Ej. Bodega A, estante 3',
+      'field.backsplashMedida':'Medida del backsplash', 'field.backsplashMedidaPh':'Ej. 4 in × 96 in',
+      'task.scheduledFor':'Programado para:',
+      'spec.materialSerial':'Serial del material', 'spec.materialUbicacion':'Ubicación del material',
+      'spec.backsplashMedida':'Medida de backsplash', 'spec.templadoDate':'Fecha de templado', 'spec.fabricacionDate':'Fecha de inicio de fabricación',
+      'field.notes':'Notas para el equipo', 'field.notesPh':'Cualquier detalle importante…',
+      'nuevo.addTapa':'+ Agregar otra tapa', 'nuevo.save':'Guardar cliente y tapas',
+      'clientes.empty':'Aún no hay clientes. Créalos desde «Nuevo cliente».',
+      'clientes.eyebrow':'Directorio', 'clientes.title':'Clientes',
+      'clientes.noPhone':'sin teléfono', 'clientes.noAddress':'sin dirección',
+      'clientes.fallaTag':'falla',
+      'clienteDet.back':'← Clientes', 'clienteDet.eyebrow':'Cliente',
+      'field.created':'Creado',
+      'equipo.eyebrow':'Equipo', 'equipo.title':'Trabajadores',
+      'equipo.thName':'Nombre', 'equipo.thRole':'Rol', 'equipo.thStatus':'Estado',
+      'equipo.active':'activo', 'equipo.inactive':'inactivo',
+      'equipo.resetPin':'Restablecer PIN', 'equipo.deactivate':'Desactivar', 'equipo.activate':'Activar',
+      'equipo.preview':'Vista previa',
+      'equipo.addLegend':'Agregar trabajador', 'field.name':'Nombre', 'field.role':'Rol',
+      'field.pin4':'PIN (4 dígitos)', 'field.language':'Idioma',
+      'equipo.add':'Agregar',
+      'equipo.storageNote':'Tamaño actual de los datos guardados: ~{kb} KB. Las fotos se comprimen automáticamente; si el espacio se llena, borra fotos antiguas desde el detalle de cada tapa.',
+      'worker.title':'Tus tareas',
+      'worker.fallaBanner':'Tienes {n} {unit} con falla reportada.',
+      'worker.empty':'No tienes tareas pendientes por ahora.',
+      'task.falla':'Falla', 'task.progress':'En progreso', 'task.pending':'Pendiente',
+      'task.material':'Material:', 'task.date':'Fecha:',
+      'back.panel':'← Panel', 'back.tasks':'← Tus tareas',
+      'tapa.edit':'Editar', 'tapa.delete':'Eliminar tapa', 'tapa.save':'Guardar cambios', 'tapa.cancel':'Cancelar',
+      'confirm.deleteTapa':'Esto elimina esta tapa y todo su historial de forma permanente. ¿Continuar?',
+      'detail.delivered':'Entregada',
+      'spec.material':'Material', 'spec.thickness':'Espesor', 'spec.room':'Ambiente',
+      'spec.backsplash':'Backsplash', 'spec.yes':'Sí', 'spec.no':'No',
+      'spec.profile':'Perfil de polichado', 'spec.sink':'Sink', 'spec.sinkNone':'No lleva',
+      'spec.holes':'Huecos para llaves', 'spec.measures':'Medidas finales', 'spec.measuresPending':'Pendiente de templado',
+      'spec.installDate':'Fecha instalación', 'spec.installer':'Instalador', 'spec.unassigned':'Sin asignar',
+      'spec.notes':'Notas:',
+      'stage.pendiente':'Pendiente', 'stage.en_progreso':'En progreso', 'stage.completado':'Completado', 'stage.con_falla':'Con falla',
+      'stage.assignedTo':'Encargado:', 'stage.started':'inició', 'stage.finished':'terminó',
+      'stage.reportedBy':'reportado por',
+      'stage.reopen':'Reabrir esta etapa',
+      'stage.start':'Iniciar',
+      'stage.retry':'Reintentar (volver a trabajar)',
+      'stage.resolve':'Marcar resuelto y completar',
+      'stage.measuresLabel':'Medidas finales (largo × ancho)', 'stage.measuresPh':'Ej. 118" × 26"',
+      'approval.legend':'Aprobación del cliente',
+      'approval.approved':'Aprobado', 'approval.approvedObs':'Aprobado con observaciones', 'approval.rejected':'Rechazado',
+      'approval.comment':'Comentario del cliente (opcional)', 'approval.commentPh':'¿Qué dijo el cliente?',
+      'approval.save':'Guardar respuesta',
+      'approval.obsNote':'(Aprobado con observaciones)',
+      'stage.addComment':'Agregar comentario', 'stage.commentPh':'Notas de avance…',
+      'stage.photo':'Foto', 'stage.saveComment':'Guardar comentario',
+      'stage.reportFalla':'Reportar falla', 'stage.complete':'Marcar completado',
+      'stage.photoRequired':'Agrega al menos una foto antes de marcar esta etapa como completada — sirve para confirmar que todo quedó bien.',
+      'stage.photoHint':'📷 Se requiere al menos 1 foto para completar',
+      'falla.title':'Reportar falla', 'falla.type':'Tipo de falla', 'falla.desc':'Descripción', 'falla.descPh':'¿Qué pasó exactamente?',
+      'falla.attach':'Adjuntar foto (opcional)', 'falla.cancel':'Cancelar', 'falla.submit':'Reportar falla',
+      'preview.viewing':'Vista previa — viendo como', 'preview.readonly':'Modo solo lectura: los cambios no se guardan.',
+      'preview.blocked':'Esto es solo una vista previa (modo solo lectura). Para actuar de verdad, esa persona debe iniciar sesión con su propio PIN.',
+      'alert.pin4':'El PIN debe tener 4 dígitos.', 'alert.pinMatch':'Los PIN no coinciden.',
+      'alert.nameAndPin':'Completa el nombre y un PIN de 4 dígitos.',
+      'alert.clientName':'Ingresa el nombre del cliente.',
+      'alert.photoFail':'No se pudo procesar la foto.',
+      'prompt.newPin':'Nuevo PIN de 4 dígitos:',
+      'alert.lastAdmin':'No puedes desactivar la última cuenta de administrador activa — nadie podría volver a entrar como admin.',
+      'confirm.reopen':'Esto reabre esta etapa y todas las siguientes. ¿Continuar?',
+      'unit.slab':'tapa', 'unit.slabs':'tapas',
+      'role.admin':'Administrador', 'role.encargado':'Encargado', 'role.templero':'Templero', 'role.cortador':'Cortador',
+      'role.fabricador':'Fabricador', 'role.polichador':'Polichador', 'role.instalador':'Instalador',
+      'stage.material.label':'Selección de material', 'stage.material.short':'Material',
+      'stage.templado.label':'Plantilla (templado)', 'stage.templado.short':'Templado',
+      'stage.corte.label':'Corte', 'stage.corte.short':'Corte',
+      'stage.fabricacion.label':'Fabricación', 'stage.fabricacion.short':'Fabricación',
+      'stage.pulido.label':'Pulido', 'stage.pulido.short':'Pulido',
+      'stage.instalacion.label':'Instalación', 'stage.instalacion.short':'Instalación',
+      'stage.aprobacion.label':'Aprobación del cliente', 'stage.aprobacion.short':'Aprobación',
+      'material.granito':'Granito', 'material.marmol':'Mármol', 'material.cuarzo':'Cuarzo', 'material.cuarcita':'Cuarcita', 'material.otro':'Otro',
+      'perfil.eased':'Eased (recto)', 'perfil.bullnose':'Bullnose', 'perfil.bullnose_doble':'Bullnose doble',
+      'perfil.bevel':'Bevel', 'perfil.ogee':'Ogee', 'perfil.waterfall':'Waterfall', 'perfil.otro':'Otro',
+      'sink.undermount':'Undermount', 'sink.topmount':'Top mount (drop-in)', 'sink.farmhouse':'Farmhouse / apron', 'sink.otro':'Otro',
+      'ambiente.cocina':'Cocina', 'ambiente.bano_principal':'Baño principal', 'ambiente.bano_secundario':'Baño secundario',
+      'ambiente.isla':'Isla', 'ambiente.bar':'Bar / bebidas', 'ambiente.lavanderia':'Lavandería', 'ambiente.otro':'Otro',
+      'falla.chip':'Cachado / chip', 'falla.quebrado':'Se quebró', 'falla.medida':'Medida incorrecta',
+      'falla.pulido':'Mal polichado', 'falla.veta':'Color o veta no coincide', 'falla.hueco':'Hueco / corte mal ubicado',
+      'falla.otro':'Otro', 'falla.rechazado_cliente':'Rechazado por el cliente'
+    },
+    en: {
+      'brand.name':'Control de Tapas',
+      'nav.logout':'Log out', 'nav.exitPreview':'Exit preview',
+      'boot.subtitle':'First time here. Create the administrator account to get started.',
+      'boot.name':'Your name', 'boot.namePh':'E.g. Miguel Montoya',
+      'boot.pin':'4-digit PIN', 'boot.pin2':'Confirm PIN',
+      'boot.submit':'Create account and enter',
+      'boot.pinNote':'This PIN just keeps someone from updating another person’s work by mistake — it isn’t high-security, since this app lives inside a shared document.',
+      'login.title':'Who are you?',
+      'login.empty':'No active workers yet. Ask the administrator to add them under “Team”.',
+      'pin.back':'← Choose someone else',
+      'pin.enter':'enter your PIN',
+      'pin.wrong':'Wrong PIN, try again.',
+      'pin.clear':'Clear',
+      'tab.panel':'Board', 'tab.nuevo':'New client', 'tab.clientes':'Clients', 'tab.equipo':'Team',
+      'stat.activas':'Active slabs', 'stat.falla':'With issue', 'stat.hoy':'Installs today', 'stat.semana':'This week',
+      'panel.eyebrow':'Board', 'panel.title':'Slabs in production',
+      'panel.search':'Search client…',
+      'panel.filterAll':'All', 'panel.filterFalla':'With issue',
+      'panel.empty':'No matching slabs.',
+      'card.install':'Install:', 'card.installer':'Installer:', 'card.noInstaller':'No installer assigned',
+      'card.today':'(today)', 'card.inDays':'(in {n} d)', 'card.overdue':'(overdue)',
+      'estado.deliv':'Delivered', 'estado.fallaIn':'Issue during {s}', 'estado.progress':'{s} in progress', 'estado.pending':'{s} pending',
+      'nuevo.eyebrow':'New', 'nuevo.title':'New client & slabs',
+      'nuevo.clientLegend':'Client',
+      'field.fullName':'Full name', 'field.phone':'Phone',
+      'field.address':'Installation address', 'field.addressPh':'Street, number, city',
+      'nuevo.tapaEyebrow':'Slab {n}', 'nuevo.remove':'Remove',
+      'field.location':'Name / location', 'field.locationPh':'E.g. Main kitchen',
+      'field.room':'Room', 'field.material':'Material',
+      'field.color':'Color / trade name', 'field.colorPh':'E.g. Blue Pearl',
+      'field.thickness':'Thickness',
+      'field.backsplash':'Has backsplash', 'field.profile':'Edge profile',
+      'field.sink':'Has sink', 'field.sinkType':'Sink type',
+      'field.faucetHoles':'Faucet holes',
+      'field.templadoDate':'Template date', 'field.fabricacionDate':'Fabrication start date',
+      'field.installDate':'Installation date', 'field.installer':'Assigned installer',
+      'field.installerLater':'— Decide later —',
+      'field.materialSerial':'Material serial', 'field.materialSerialPh':'E.g. LOT-4521',
+      'field.materialUbicacion':'Material location', 'field.materialUbicacionPh':'E.g. Warehouse A, shelf 3',
+      'field.backsplashMedida':'Backsplash measurement', 'field.backsplashMedidaPh':'E.g. 4 in × 96 in',
+      'task.scheduledFor':'Scheduled for:',
+      'spec.materialSerial':'Material serial', 'spec.materialUbicacion':'Material location',
+      'spec.backsplashMedida':'Backsplash measurement', 'spec.templadoDate':'Template date', 'spec.fabricacionDate':'Fabrication start date',
+      'field.notes':'Notes for the team', 'field.notesPh':'Any important detail…',
+      'nuevo.addTapa':'+ Add another slab', 'nuevo.save':'Save client & slabs',
+      'clientes.empty':'No clients yet. Create one from “New client”.',
+      'clientes.eyebrow':'Directory', 'clientes.title':'Clients',
+      'clientes.noPhone':'no phone', 'clientes.noAddress':'no address',
+      'clientes.fallaTag':'issue',
+      'clienteDet.back':'← Clients', 'clienteDet.eyebrow':'Client',
+      'field.created':'Created',
+      'equipo.eyebrow':'Team', 'equipo.title':'Workers',
+      'equipo.thName':'Name', 'equipo.thRole':'Role', 'equipo.thStatus':'Status',
+      'equipo.active':'active', 'equipo.inactive':'inactive',
+      'equipo.resetPin':'Reset PIN', 'equipo.deactivate':'Deactivate', 'equipo.activate':'Activate',
+      'equipo.preview':'Preview',
+      'equipo.addLegend':'Add worker', 'field.name':'Name', 'field.role':'Role',
+      'field.pin4':'PIN (4 digits)', 'field.language':'Language',
+      'equipo.add':'Add',
+      'equipo.storageNote':'Current size of the saved data: ~{kb} KB. Photos are compressed automatically; if space runs low, delete old photos from each slab’s detail view.',
+      'worker.title':'Your tasks',
+      'worker.fallaBanner':'You have {n} {unit} with a reported issue.',
+      'worker.empty':'You have no pending tasks right now.',
+      'task.falla':'Issue', 'task.progress':'In progress', 'task.pending':'Pending',
+      'task.material':'Material:', 'task.date':'Date:',
+      'back.panel':'← Board', 'back.tasks':'← Your tasks',
+      'tapa.edit':'Edit', 'tapa.delete':'Delete tapa', 'tapa.save':'Save changes', 'tapa.cancel':'Cancel',
+      'confirm.deleteTapa':'This permanently deletes this tapa and its whole history. Continue?',
+      'detail.delivered':'Delivered',
+      'spec.material':'Material', 'spec.thickness':'Thickness', 'spec.room':'Room',
+      'spec.backsplash':'Backsplash', 'spec.yes':'Yes', 'spec.no':'No',
+      'spec.profile':'Edge profile', 'spec.sink':'Sink', 'spec.sinkNone':'None',
+      'spec.holes':'Faucet holes', 'spec.measures':'Final measurements', 'spec.measuresPending':'Pending template',
+      'spec.installDate':'Install date', 'spec.installer':'Installer', 'spec.unassigned':'Unassigned',
+      'spec.notes':'Notes:',
+      'stage.pendiente':'Pending', 'stage.en_progreso':'In progress', 'stage.completado':'Completed', 'stage.con_falla':'Issue reported',
+      'stage.assignedTo':'Assigned to:', 'stage.started':'started', 'stage.finished':'finished',
+      'stage.reportedBy':'reported by',
+      'stage.reopen':'Reopen this stage',
+      'stage.start':'Start',
+      'stage.retry':'Retry (rework)',
+      'stage.resolve':'Mark resolved & complete',
+      'stage.measuresLabel':'Final measurements (length × width)', 'stage.measuresPh':'E.g. 118" × 26"',
+      'approval.legend':'Client approval',
+      'approval.approved':'Approved', 'approval.approvedObs':'Approved with remarks', 'approval.rejected':'Rejected',
+      'approval.comment':'Client comment (optional)', 'approval.commentPh':'What did the client say?',
+      'approval.save':'Save response',
+      'approval.obsNote':'(Approved with remarks)',
+      'stage.addComment':'Add comment', 'stage.commentPh':'Progress notes…',
+      'stage.photo':'Photo', 'stage.saveComment':'Save comment',
+      'stage.reportFalla':'Report issue', 'stage.complete':'Mark complete',
+      'stage.photoRequired':'Add at least one photo before marking this stage complete — it confirms everything came out right.',
+      'stage.photoHint':'📷 At least 1 photo is required to complete',
+      'falla.title':'Report an issue', 'falla.type':'Issue type', 'falla.desc':'Description', 'falla.descPh':'What exactly happened?',
+      'falla.attach':'Attach photo (optional)', 'falla.cancel':'Cancel', 'falla.submit':'Report issue',
+      'preview.viewing':'Preview — viewing as', 'preview.readonly':'Read-only mode: changes are not saved.',
+      'preview.blocked':'This is only a preview (read-only mode). To actually act, that person needs to sign in with their own PIN.',
+      'alert.pin4':'The PIN must be 4 digits.', 'alert.pinMatch':'The PINs don’t match.',
+      'alert.nameAndPin':'Enter a name and a 4-digit PIN.',
+      'alert.clientName':'Enter the client’s name.',
+      'alert.photoFail':'Couldn’t process the photo.',
+      'prompt.newPin':'New 4-digit PIN:',
+      'alert.lastAdmin':'You can’t deactivate the last active administrator account — no one would be able to sign back in as admin.',
+      'confirm.reopen':'This reopens this stage and every stage after it. Continue?',
+      'unit.slab':'slab', 'unit.slabs':'slabs',
+      'role.admin':'Administrator', 'role.encargado':'Manager', 'role.templero':'Templater', 'role.cortador':'Cutter',
+      'role.fabricador':'Fabricator', 'role.polichador':'Polisher', 'role.instalador':'Installer',
+      'stage.material.label':'Material selection', 'stage.material.short':'Material',
+      'stage.templado.label':'Template', 'stage.templado.short':'Template',
+      'stage.corte.label':'Cutting', 'stage.corte.short':'Cutting',
+      'stage.fabricacion.label':'Fabrication', 'stage.fabricacion.short':'Fabrication',
+      'stage.pulido.label':'Polishing', 'stage.pulido.short':'Polishing',
+      'stage.instalacion.label':'Installation', 'stage.instalacion.short':'Installation',
+      'stage.aprobacion.label':'Client approval', 'stage.aprobacion.short':'Approval',
+      'material.granito':'Granite', 'material.marmol':'Marble', 'material.cuarzo':'Quartz', 'material.cuarcita':'Quartzite', 'material.otro':'Other',
+      'perfil.eased':'Eased (straight)', 'perfil.bullnose':'Bullnose', 'perfil.bullnose_doble':'Double bullnose',
+      'perfil.bevel':'Bevel', 'perfil.ogee':'Ogee', 'perfil.waterfall':'Waterfall', 'perfil.otro':'Other',
+      'sink.undermount':'Undermount', 'sink.topmount':'Top mount (drop-in)', 'sink.farmhouse':'Farmhouse / apron', 'sink.otro':'Other',
+      'ambiente.cocina':'Kitchen', 'ambiente.bano_principal':'Main bathroom', 'ambiente.bano_secundario':'Secondary bathroom',
+      'ambiente.isla':'Island', 'ambiente.bar':'Bar', 'ambiente.lavanderia':'Laundry room', 'ambiente.otro':'Other',
+      'falla.chip':'Chip', 'falla.quebrado':'Broke', 'falla.medida':'Wrong measurement',
+      'falla.pulido':'Poor polish', 'falla.veta':'Color / vein mismatch', 'falla.hueco':'Cutout in wrong spot',
+      'falla.otro':'Other', 'falla.rechazado_cliente':'Rejected by client'
+    }
+  };
+  var locale = 'es';
+  try{ var storedLoc = localStorage.getItem('cdt_locale'); if(storedLoc==='es'||storedLoc==='en') locale = storedLoc; }catch(e){}
+  function tr(key){
+    var d = TR[locale] || TR.es;
+    if(d[key]!==undefined) return d[key];
+    if(TR.es[key]!==undefined) return TR.es[key];
+    return key;
+  }
+  function trf(key, vars){
+    var s = tr(key);
+    if(vars){ Object.keys(vars).forEach(function(k){ s = s.split('{'+k+'}').join(String(vars[k])); }); }
+    return s;
+  }
+
+  /* ============ constants ============ */
+  var STAGE_KEYS = ['material','templado','corte','fabricacion','pulido','instalacion','aprobacion'];
+  var STAGE_ROLE = {material:'admin', templado:'templero', corte:'cortador', fabricacion:'fabricador', pulido:'polichador', instalacion:'instalador', aprobacion:'instalador'};
+  var STAGES = STAGE_KEYS.map(function(k){ return {key:k, role:STAGE_ROLE[k]}; });
+  var ROLE_KEYS = ['admin','encargado','templero','cortador','fabricador','polichador','instalador'];
+  var FALLA_KEYS = ['chip','quebrado','medida','pulido','veta','hueco','otro'];
+  var PERFIL_KEYS = ['eased','bullnose','bullnose_doble','bevel','ogee','waterfall','otro'];
+  var SINK_KEYS = ['undermount','topmount','farmhouse','otro'];
+  var MATERIAL_KEYS = ['granito','marmol','cuarzo','cuarcita','otro'];
+  var AMBIENTE_KEYS = ['cocina','bano_principal','bano_secundario','isla','bar','lavanderia','otro'];
+
+  function roleLabel(r){ return tr('role.'+r); }
+  function stageInfo(k){ return STAGES.filter(function(s){return s.key===k;})[0]; }
+  function stageLabel(k){ return tr('stage.'+k+'.label'); }
+  function stageShort(k){ return tr('stage.'+k+'.short'); }
+  function materialLabel(k){ return k ? tr('material.'+k) : '—'; }
+  function perfilLabel(k){ return k ? tr('perfil.'+k) : '—'; }
+  function sinkLabel(k){ return k ? tr('sink.'+k) : '—'; }
+  function ambienteLabel(k){ return k ? tr('ambiente.'+k) : '—'; }
+  function fallaTipoLabel(k){ if(!k) return '—'; if(k==='rechazado_cliente') return tr('falla.rechazado_cliente'); return FALLA_KEYS.indexOf(k)>=0 ? tr('falla.'+k) : k; }
+  function espesorLabel(k){ return k==='3cm' ? '3 cm' : '2 cm'; }
+
+  /* ============ utils ============ */
+  function uid(p){ return (p||'id')+'_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4); }
+  function esc(s){ s=(s===undefined||s===null)?'':String(s); return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function todayISO(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function nowISO(){ return new Date().toISOString(); }
+  var MESES = { es:['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'], en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] };
+  function fmtDate(iso){ if(!iso) return '—'; var p=iso.split('-'); if(p.length<3) return iso; var meses=MESES[locale]||MESES.es; return parseInt(p[2],10)+' '+meses[parseInt(p[1],10)-1]+' '+p[0]; }
+  function fmtDateTime(iso){ if(!iso) return '—'; var d=new Date(iso); if(isNaN(d)) return iso; var meses=MESES[locale]||MESES.es; return d.getDate()+' '+meses[d.getMonth()]+' · '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function daysUntil(iso){ if(!iso) return null; var t=new Date(todayISO()+'T00:00:00'); var d=new Date(iso+'T00:00:00'); return Math.round((d-t)/86400000); }
+  function unitSlab(n){ return n===1 ? tr('unit.slab') : tr('unit.slabs'); }
+  function dateRelativeSuffix(iso){
+    var d = daysUntil(iso);
+    if(d===null) return '';
+    if(d===0) return ' '+tr('card.today');
+    if(d>0) return ' '+trf('card.inDays',{n:d});
+    return ' '+tr('card.overdue');
+  }
+  function relevantDateForStage(tapa, stageKey){
+    if(stageKey==='templado') return tapa.fechaTemplado;
+    if(stageKey==='corte' || stageKey==='fabricacion') return tapa.fechaInicioFabricacion;
+    if(stageKey==='instalacion') return tapa.fechaInstalacion;
+    return null;
+  }
+
+  /* ============ state ============ */
+  function emptyState(){
+    return { version:1, workers:[], clientes:[], tapas:[] };
+  }
+  var state = emptyState(); // replaced by the real shared state once loadFromServer() resolves
+
+  var session = null;
+  try{ var raw=localStorage.getItem('cdt_session'); if(raw) session=JSON.parse(raw); }catch(e){}
+
+  var route = {name:'home', params:{}};
+  var overlayNode = null; // {name, params}
+  var saveStatus = 'ok'; // ok | busy | err
+  var previewWorkerId = null, previewPriorLocale = null;
+
+  function nav(name, params){ route={name:name, params:params||{}}; closeOverlay(); render(); window.scrollTo(0,0); }
+  function openOverlay(name, params){ overlayNode={name:name, params:params||{}}; renderOverlay(); }
+  function closeOverlay(){ overlayNode=null; renderOverlay(); }
+
+  function currentWorker(){
+    if(!session) return null;
+    return state.workers.filter(function(w){ return w.id===session.workerId; })[0] || null;
+  }
+
+  /* ============ persistence (Netlify Function + Blobs, no Claude account needed) ============ */
+  var STATE_API = '/api/state';
+  var serverVersion = 0;      // concurrency counter for the stored document (NOT state.version, the app's own schema version)
+  var saveInFlight = false;
+  var initialLoadDone = false;
+
+  function isFieldFocused(){
+    var el = document.activeElement;
+    return !!(el && (el.tagName==='INPUT' || el.tagName==='TEXTAREA' || el.tagName==='SELECT'));
+  }
+
+  function loadFromServer(){
+    return fetch(STATE_API).then(function(r){ return r.json(); }).then(function(doc){
+      state = (doc && doc.state) || emptyState();
+      serverVersion = (doc && doc.version) || 1;
+      initialLoadDone = true;
+      setSaveStatus('ok');
+    }).catch(function(err){
+      console.error('No se pudo cargar el estado', err);
+      initialLoadDone = true;
+      setSaveStatus('err');
+    });
+  }
+
+  var pendingSave = false, saveTimer = null;
+  function scheduleSave(){
+    pendingSave = true;
+    setSaveStatus('busy');
+    if(saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){ doSave(3); }, 260);
+  }
+  function setSaveStatus(s){ saveStatus=s; var el=document.getElementById('save-indicator'); if(el) el.outerHTML=renderSaveIndicator(); }
+  function renderSaveIndicator(){
+    var label = saveStatus==='busy' ? (locale==='en'?'Saving…':'Guardando…') : saveStatus==='err' ? (locale==='en'?'Offline':'Sin conexión') : (locale==='en'?'Saved':'Guardado');
+    return '<span id="save-indicator" class="save-indicator '+saveStatus+'"><span class="save-dot"></span>'+label+'</span>';
+  }
+  function doSave(attemptsLeft){
+    if(!pendingSave) return;
+    pendingSave = false;
+    saveInFlight = true;
+    fetch(STATE_API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ state: state, baseVersion: serverVersion })
+    }).then(function(r){
+      return r.json().then(function(data){ return {status:r.status, data:data}; });
+    }).then(function(res){
+      if(res.status===200){
+        serverVersion = res.data.version;
+        saveInFlight = false;
+        setSaveStatus('ok');
+        return;
+      }
+      if(res.status===409 && attemptsLeft>0){
+        /* Someone else saved first. Rebase onto their version and retry with our
+           local state — our own action already reflects in this device's UI, so
+           we keep it rather than silently discarding it. */
+        serverVersion = res.data.version;
+        saveInFlight = false;
+        pendingSave = true;
+        doSave(attemptsLeft-1);
+        return;
+      }
+      saveInFlight = false;
+      setSaveStatus('err');
+    }).catch(function(err){
+      console.error(err);
+      saveInFlight = false;
+      setSaveStatus('err');
+    });
+  }
+
+  /* pick up changes saved from other devices */
+  var POLL_MS = 4000;
+  function pollState(){
+    if(!initialLoadDone || pendingSave || saveInFlight || isFieldFocused()) return;
+    fetch(STATE_API).then(function(r){ return r.json(); }).then(function(doc){
+      if(doc && typeof doc.version==='number' && doc.version!==serverVersion){
+        state = doc.state || emptyState();
+        serverVersion = doc.version;
+        render();
+      }
+      setSaveStatus('ok');
+    }).catch(function(){ setSaveStatus('err'); });
+  }
+
+  function mutate(fn){
+    fn(state);
+    render();
+    scheduleSave();
+  }
+
+  /* ============ domain helpers ============ */
+  function newTapaEtapas(){
+    var e={};
+    STAGES.forEach(function(s){ e[s.key]={ estado:'pendiente', encargadoId:null, inicio:null, fin:null, comentarios:[], fotos:[] }; });
+    return e;
+  }
+  function currentStageKey(tapa){
+    for(var i=0;i<STAGES.length;i++){ if(tapa.etapas[STAGES[i].key].estado!=='completado') return STAGES[i].key; }
+    return null; // all done
+  }
+  function tapaEstadoGeneral(tapa){
+    var cur=currentStageKey(tapa);
+    if(cur===null) return {label:tr('estado.deliv'), tone:'completado'};
+    var etapa=tapa.etapas[cur];
+    if(etapa.estado==='con_falla') return {label:trf('estado.fallaIn',{s:stageShort(cur)}), tone:'con_falla'};
+    if(etapa.estado==='en_progreso') return {label:trf('estado.progress',{s:stageShort(cur)}), tone:'en_progreso'};
+    return {label:trf('estado.pending',{s:stageShort(cur)}), tone:'pendiente'};
+  }
+  function tapaHasFalla(tapa){
+    return STAGES.some(function(s){ return tapa.etapas[s.key].estado==='con_falla'; });
+  }
+  function canActOnStage(worker, tapa, stageKey){
+    if(!worker) return false;
+    if(worker.rol==='admin' || worker.rol==='encargado') return true;
+    return stageInfo(stageKey).role === worker.rol;
+  }
+  function clienteById(id){ return state.clientes.filter(function(c){return c.id===id;})[0]||null; }
+  function tapasForCliente(id){ return state.tapas.filter(function(t){return t.clienteId===id;}); }
+  function workerById(id){ return state.workers.filter(function(w){return w.id===id;})[0]||null; }
+  function activeWorkers(){ return state.workers.filter(function(w){return w.activo;}); }
+  function workersByRole(r){ return activeWorkers().filter(function(w){return w.rol===r;}); }
+
+  /* tasks for a given worker: tapas whose current stage matches worker role */
+  function tasksForWorker(worker){
+    if(!worker) return [];
+    return state.tapas.filter(function(t){
+      var cur=currentStageKey(t);
+      if(cur===null) return false;
+      return stageInfo(cur).role===worker.rol;
+    }).sort(function(a,b){
+      var af=tapaHasFalla(a)?0:1, bf=tapaHasFalla(b)?0:1;
+      if(af!==bf) return af-bf;
+      return (a.fechaInstalacion||'9999').localeCompare(b.fechaInstalacion||'9999');
+    });
+  }
+
+  /* ============ image compression ============ */
+  function compressImage(file){
+    return new Promise(function(resolve, reject){
+      if(!file || !file.type || file.type.indexOf('image/')!==0){ reject(new Error('not an image')); return; }
+      var img = new Image();
+      var reader = new FileReader();
+      reader.onload = function(e){
+        img.onload = function(){
+          var maxDim = 720;
+          var w=img.width, h=img.height;
+          var scale = Math.min(1, maxDim/Math.max(w,h));
+          var cw = Math.round(w*scale), ch = Math.round(h*scale);
+          var canvas = document.createElement('canvas');
+          canvas.width=cw; canvas.height=ch;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img,0,0,cw,ch);
+          var dataUrl = canvas.toDataURL('image/jpeg', 0.55);
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+  function approxStateSizeKB(){
+    try{ return Math.round(JSON.stringify(state).length/1024); }catch(e){ return 0; }
+  }
+
+  /* ============ mutating-action guard (for preview mode) ============ */
+  var MUTATING_ACTIONS = ['stage-start','stage-complete','stage-retry','stage-resolve','reopen-stage','delete-tapa'];
+  var MUTATING_FORMS = ['stage-comment','falla','aprobacion','editar-tapa'];
+  var editingTapaId = null;
+  function previewBlocked(){
+    if(previewWorkerId){ alert(tr('preview.blocked')); return true; }
+    return false;
+  }
+
+  /* ============ render root ============ */
+  function render(){
+    var app = document.getElementById('app');
+    app.innerHTML = renderRoute();
+    bindGlobalHandlers(app);
+    renderOverlay();
+  }
+
+  function renderRoute(){
+    if(!session || !currentWorker()){
+      if(state.workers.filter(function(w){return w.rol==='admin';}).length===0) return screenBootstrap();
+      return screenLogin();
+    }
+    var w = currentWorker();
+    if(w.rol==='admin' || w.rol==='encargado'){
+      if(previewWorkerId){
+        var pw = workerById(previewWorkerId);
+        if(pw) return screenWorker(pw, true);
+        previewWorkerId = null;
+      }
+      return screenAdmin();
+    }
+    return screenWorker(w, false);
+  }
+
+  /* ============ topbar ============ */
+  function langToggle(){
+    return '<div class="lang-toggle">' +
+      '<button type="button" data-action="set-locale" data-loc="es" class="'+(locale==='es'?'active':'')+'">ES</button>' +
+      '<button type="button" data-action="set-locale" data-loc="en" class="'+(locale==='en'?'active':'')+'">EN</button>' +
+    '</div>';
+  }
+  function topbar(displayWorker, isPreview){
+    var w = displayWorker || currentWorker();
+    if(!w) return '';
+    return '' +
+    '<div class="topbar">' +
+      '<div class="brand">' + brandMark() + '<span class="brand-name">'+esc(tr('brand.name'))+'</span></div>' +
+      '<div class="who">' + renderSaveIndicator() + (isPreview?'':langToggle()) +
+        '<div class="who-chip"><span class="avatar" style="width:26px;height:26px;font-size:11px;">'+esc(initials(w.nombre))+'</span>' +
+          '<span><span class="name">'+esc(w.nombre)+'</span><br><span class="role">'+esc(roleLabel(w.rol))+'</span></span>' +
+          (isPreview
+            ? '<button class="icon-btn" data-action="exit-preview" title="'+esc(tr('nav.exitPreview'))+'">' + iconLogout() + '</button>'
+            : '<button class="icon-btn" data-action="logout" title="'+esc(tr('nav.logout'))+'">' + iconLogout() + '</button>') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  function previewBanner(w){
+    return '<div class="preview-banner">🔍 ' + esc(tr('preview.viewing')) + ' <b>'+esc(w.nombre)+'</b> ('+esc(roleLabel(w.rol))+'). ' + esc(tr('preview.readonly')) +
+      ' <button class="btn btn-sm" data-action="exit-preview" style="margin-left:auto;">'+esc(tr('nav.exitPreview'))+'</button></div>';
+  }
+  function initials(n){ return (n||'').trim().split(/\s+/).slice(0,2).map(function(p){return p[0];}).join('').toUpperCase(); }
+  function brandMark(){ return '<div class="brand-mark">'+iconSlab()+'</div>'; }
+  function iconSlab(){ return '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="6" width="18" height="12" rx="1.5" fill="#fff" fill-opacity=".92"/><circle cx="8" cy="10" r="1" fill="#8f4d22" fill-opacity=".5"/><circle cx="14" cy="13.5" r=".7" fill="#8f4d22" fill-opacity=".5"/><circle cx="17.5" cy="9.5" r=".6" fill="#8f4d22" fill-opacity=".4"/><path d="M3 6L21 18" stroke="#8f4d22" stroke-opacity=".2" stroke-width="1"/></svg>'; }
+  function iconLogout(){ return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+  function iconCamera(){ return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 8h3l2-3h6l2 3h3v11H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.4" stroke="currentColor" stroke-width="2"/></svg>'; }
+  function iconAlert(){ return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3l10 18H2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>'; }
+
+  /* ============ bootstrap / login ============ */
+  function screenBootstrap(){
+    return centerShell('' +
+      '<div style="display:flex; justify-content:flex-end; margin-bottom:8px;">' + langToggle() + '</div>' +
+      '<div style="text-align:center; margin-bottom:6px;">' + brandMark() + '</div>' +
+      '<h1 style="text-align:center; font-size:24px;">'+esc(tr('brand.name'))+'</h1>' +
+      '<p style="text-align:center; color:var(--text-muted); font-size:13.5px; margin:2px 0 8px;">'+esc(tr('boot.subtitle'))+'</p>' +
+      '<form data-form="bootstrap" style="display:flex; flex-direction:column; gap:12px;">' +
+        field(tr('boot.name'),'text','nombre',tr('boot.namePh'), {required:true}) +
+        field(tr('boot.pin'),'password','pin','••••',{required:true, maxlength:4, inputmode:'numeric', pattern:'[0-9]{4}'}) +
+        field(tr('boot.pin2'),'password','pin2','••••',{required:true, maxlength:4, inputmode:'numeric', pattern:'[0-9]{4}'}) +
+        '<button class="btn btn-primary btn-block" type="submit">'+esc(tr('boot.submit'))+'</button>' +
+      '</form>' +
+      '<p class="footnote" style="margin-top:10px;">'+esc(tr('boot.pinNote'))+'</p>' +
+    '');
+  }
+  function screenLogin(){
+    var w = state.workers.filter(function(x){return x.activo;});
+    var body = '';
+    if(w.length===0){
+      body = '<p class="footnote" style="text-align:center;">'+esc(tr('login.empty'))+'</p>';
+    } else {
+      body = '<div class="worker-pick">' + w.map(function(worker){
+        return '<button data-action="pick-worker" data-id="'+worker.id+'"><span class="avatar">'+esc(initials(worker.nombre))+'</span><span class="nm">'+esc(worker.nombre)+'</span><span class="rl">'+esc(roleLabel(worker.rol))+'</span></button>';
+      }).join('') + '</div>';
+    }
+    return centerShell('' +
+      '<div style="display:flex; justify-content:flex-end; margin-bottom:8px;">' + langToggle() + '</div>' +
+      '<div style="text-align:center; margin-bottom:6px;">' + brandMark() + '</div>' +
+      '<h1 style="text-align:center; font-size:22px; margin-bottom:14px;">'+esc(tr('login.title'))+'</h1>' +
+      body +
+    '', true);
+  }
+  function screenPinEntry(workerId){
+    var w = workerById(workerId);
+    if(!w) return screenLogin();
+    var entered = pinBuffer || '';
+    return centerShell('' +
+      '<button class="back-link" data-action="cancel-pin" style="margin-bottom:10px;">'+esc(tr('pin.back'))+'</button>' +
+      '<div style="text-align:center;"><span class="avatar" style="width:56px;height:56px;font-size:20px;">'+esc(initials(w.nombre))+'</span></div>' +
+      '<h1 style="text-align:center; font-size:20px; margin-top:10px;">'+esc(w.nombre)+'</h1>' +
+      '<p style="text-align:center; color:var(--text-muted); font-size:13px; margin-top:-6px;">'+esc(roleLabel(w.rol))+' · '+esc(tr('pin.enter'))+'</p>' +
+      '<div class="pin-dots">' + [0,1,2,3].map(function(i){ return '<span class="pin-dot'+(i<entered.length?' filled':'')+'"></span>'; }).join('') + '</div>' +
+      (pinError?'<p style="text-align:center;color:var(--danger);font-size:13px;">'+esc(tr('pin.wrong'))+'</p>':'') +
+      '<div class="pin-pad">' +
+        [1,2,3,4,5,6,7,8,9].map(function(n){ return '<button type="button" data-action="pin-digit" data-d="'+n+'">'+n+'</button>'; }).join('') +
+        '<button type="button" data-action="pin-clear">'+esc(tr('pin.clear'))+'</button>' +
+        '<button type="button" data-action="pin-digit" data-d="0">0</button>' +
+        '<button type="button" data-action="pin-back">⌫</button>' +
+      '</div>' +
+    '', true);
+  }
+  var pinTargetId = null, pinBuffer = '', pinError = false;
+
+  function centerShell(inner, noCard){
+    return '<div class="center-shell"><div style="width:100%; max-width:380px;">' + (noCard?inner:('<div class="card" style="padding:26px 24px;">'+inner+'</div>')) + '</div></div>';
+  }
+
+  function field(label, type, name, placeholder, extra){
+    extra = extra || {};
+    var attrs = 'type="'+type+'" name="'+name+'" placeholder="'+esc(placeholder||'')+'"';
+    if(extra.required) attrs += ' required';
+    if(extra.maxlength) attrs += ' maxlength="'+extra.maxlength+'"';
+    if(extra.inputmode) attrs += ' inputmode="'+extra.inputmode+'"';
+    if(extra.pattern) attrs += ' pattern="'+extra.pattern+'"';
+    if(extra.value!==undefined) attrs += ' value="'+esc(extra.value)+'"';
+    if(extra.min!==undefined) attrs += ' min="'+extra.min+'"';
+    return '<label class="field">'+esc(label)+(extra.hint?' <span class="hint">'+esc(extra.hint)+'</span>':'')+'<input '+attrs+'></label>';
+  }
+  function selectField(label, name, options, selected, extra){
+    extra = extra || {};
+    var opts = options.map(function(o){
+      var val = typeof o==='object'?o.value:o, lbl = typeof o==='object'?o.label:o;
+      return '<option value="'+esc(val)+'"'+(val===selected?' selected':'')+'>'+esc(lbl)+'</option>';
+    }).join('');
+    return '<label class="field">'+esc(label)+'<select name="'+name+'"'+(extra.required?' required':'')+'>'+opts+'</select></label>';
+  }
+  function textareaField(label, name, placeholder, value){
+    return '<label class="field">'+esc(label)+'<textarea name="'+name+'" placeholder="'+esc(placeholder||'')+'">'+esc(value||'')+'</textarea></label>';
+  }
+  function keyOptions(keys, labelFn){ return keys.map(function(k){ return {value:k, label:labelFn(k)}; }); }
+
+  /* ============ ADMIN ============ */
+  var adminTab = 'panel';
+  var adminFilter = 'todas';
+  var adminSearch = '';
+
+  function screenAdmin(){
+    var tabs = [['panel',tr('tab.panel')],['nuevo',tr('tab.nuevo')],['clientes',tr('tab.clientes')],['equipo',tr('tab.equipo')]];
+    return topbar() +
+      '<div class="tabbar">' +
+        tabs.map(function(p){
+          return '<button data-action="admin-tab" data-tab="'+p[0]+'" class="'+(adminTab===p[0]?'active':'')+'">'+esc(p[1])+'</button>';
+        }).join('') +
+      '</div>' +
+      '<div class="main wide">' + adminTabContent() + '</div>';
+  }
+
+  function adminTabContent(){
+    if(adminTab==='panel') return adminPanel();
+    if(adminTab==='nuevo') return adminNuevoCliente();
+    if(adminTab==='clientes') return adminClientes();
+    if(adminTab==='equipo') return adminEquipo();
+    if(adminTab==='tapa-detalle') return tapaDetalle(route.params.tapaId, true, null);
+    if(adminTab==='cliente-detalle') return clienteDetalle(route.params.clienteId);
+    return adminPanel();
+  }
+
+  function adminPanel(){
+    var tapasActivas = state.tapas.filter(function(t){ return currentStageKey(t)!==null; });
+    var conFalla = tapasActivas.filter(tapaHasFalla);
+    var hoy = todayISO();
+    var instalHoy = state.tapas.filter(function(t){ return t.fechaInstalacion===hoy; });
+    var instalSemana = state.tapas.filter(function(t){ var d=daysUntil(t.fechaInstalacion); return d!==null && d>=0 && d<=7; });
+
+    var list = tapasActivas.slice();
+    if(adminFilter==='falla') list = list.filter(tapaHasFalla);
+    if(adminSearch.trim()){
+      var q=adminSearch.trim().toLowerCase();
+      list = list.filter(function(t){
+        var c=clienteById(t.clienteId);
+        return (c && c.nombre.toLowerCase().indexOf(q)>=0) || (t.etiqueta||'').toLowerCase().indexOf(q)>=0;
+      });
+    }
+    list.sort(function(a,b){ var af=tapaHasFalla(a)?0:1, bf=tapaHasFalla(b)?0:1; if(af!==bf) return af-bf; return (a.fechaInstalacion||'9999').localeCompare(b.fechaInstalacion||'9999'); });
+
+    return '' +
+      '<div class="stat-row">' +
+        stat(tapasActivas.length,tr('stat.activas')) +
+        stat(conFalla.length,tr('stat.falla'), conFalla.length>0?'danger':'') +
+        stat(instalHoy.length,tr('stat.hoy'),'info') +
+        stat(instalSemana.length,tr('stat.semana')) +
+      '</div>' +
+      '<div class="section-head">' +
+        '<div><span class="eyebrow">'+esc(tr('panel.eyebrow'))+'</span><h2>'+esc(tr('panel.title'))+'</h2></div>' +
+        '<div class="btn-row">' +
+          '<input type="text" placeholder="'+esc(tr('panel.search'))+'" value="'+esc(adminSearch)+'" data-input="admin-search" style="width:180px;">' +
+        '</div>' +
+      '</div>' +
+      '<div class="btn-row" style="margin-top:-10px;">' +
+        chipFilterBtn('todas',tr('panel.filterAll')) + chipFilterBtn('falla',tr('panel.filterFalla')) +
+      '</div>' +
+      (list.length===0 ? emptyState('🪨',tr('panel.empty')) :
+        '<div style="display:flex; flex-direction:column; gap:10px;">' + list.map(function(t){ return tapaCard(t, true); }).join('') + '</div>')
+    ;
+  }
+  function chipFilterBtn(val,label){
+    return '<button class="btn btn-sm" data-action="admin-filter" data-val="'+val+'" style="'+(adminFilter===val?'background:var(--accent-soft); border-color:var(--accent); color:var(--accent-strong);':'')+'">'+esc(label)+'</button>';
+  }
+  function stat(num,label,tone){
+    return '<div class="stat'+(tone?' '+tone:'')+'"><div class="num mono">'+num+'</div><div class="lbl">'+esc(label)+'</div></div>';
+  }
+  function emptyState(glyph,text){ return '<div class="empty-state"><div class="glyph">'+glyph+'</div>'+esc(text)+'</div>'; }
+
+  function tapaCard(t, clickable){
+    var c = clienteById(t.clienteId);
+    var estado = tapaEstadoGeneral(t);
+    var falla = tapaHasFalla(t);
+    return '<div class="tapa-card'+(falla?' falla':'')+'"'+(clickable?' data-action="open-tapa" data-id="'+t.id+'"':'')+'>' +
+      '<div class="tapa-card-top">' +
+        '<div><div class="cliente">'+esc(c?c.nombre:'—')+'</div><div class="tapa-label">'+esc(t.etiqueta)+' · '+esc(materialLabel(t.material.tipo))+(t.material.color?(' '+esc(t.material.color)):'')+'</div></div>' +
+        '<span class="chip chip-'+estado.tone+'">'+(falla?iconAlert()+' ':'')+esc(estado.label)+'</span>' +
+      '</div>' +
+      stepper(t) +
+      '<div class="tapa-meta">' +
+        '<span><b>'+esc(tr('card.install'))+'</b> '+fmtDate(t.fechaInstalacion)+dateRelativeSuffix(t.fechaInstalacion)+'</span>' +
+        (t.instaladorId ? '<span><b>'+esc(tr('card.installer'))+'</b> '+esc(workerById(t.instaladorId)?workerById(t.instaladorId).nombre:'—')+'</span>' : '<span style="color:var(--text-faint);">'+esc(tr('card.noInstaller'))+'</span>') +
+      '</div>' +
+    '</div>';
+  }
+
+  function stepper(t){
+    return '<div class="stepper">' + STAGES.map(function(s,i){
+      var st = t.etapas[s.key].estado;
+      return (i>0?'<span class="step-line'+(t.etapas[STAGES[i-1].key].estado==='completado'?' done':'')+'"></span>':'') +
+        '<span class="step '+st+'" title="'+esc(stageLabel(s.key))+': '+st+'"><span class="dot"></span><span class="lbl">'+esc(stageShort(s.key))+'</span></span>';
+    }).join('') + '</div>';
+  }
+
+  function adminNuevoCliente(){
+    return '<div class="section-head"><div><span class="eyebrow">'+esc(tr('nuevo.eyebrow'))+'</span><h2>'+esc(tr('nuevo.title'))+'</h2></div></div>' +
+      '<form data-form="nuevo-cliente" style="display:flex; flex-direction:column; gap:16px;">' +
+        '<fieldset><legend>'+esc(tr('nuevo.clientLegend'))+'</legend><div style="display:flex; flex-direction:column; gap:12px;">' +
+          '<div class="grid2">' + field(tr('field.fullName'),'text','clienteNombre','') + field(tr('field.phone'),'tel','clienteTelefono','') + '</div>' +
+          field(tr('field.address'),'text','clienteDireccion',tr('field.addressPh')) +
+        '</div></fieldset>' +
+        '<div id="tapas-repeat-list" style="display:flex; flex-direction:column; gap:12px;">' + (newClienteTapas.length?newClienteTapas.map(tapaRepeatBlock).join(''):tapaRepeatBlock({},0)) + '</div>' +
+        '<button type="button" class="btn" data-action="add-tapa-block">'+esc(tr('nuevo.addTapa'))+'</button>' +
+        '<div class="btn-row" style="margin-top:6px;">' +
+          '<button class="btn btn-primary" type="submit">'+esc(tr('nuevo.save'))+'</button>' +
+        '</div>' +
+      '</form>';
+  }
+  var newClienteTapas = [{}];
+  function tapaRepeatBlock(v, idx){
+    v = v||{};
+    return '<div class="tapa-repeat" data-tapa-idx="'+idx+'">' +
+      (idx>0?'<button type="button" class="icon-btn rm" data-action="remove-tapa-block" data-idx="'+idx+'" title="'+esc(tr('nuevo.remove'))+'">✕</button>':'') +
+      '<div class="eyebrow">'+esc(trf('nuevo.tapaEyebrow',{n:idx+1}))+'</div>' +
+      '<div class="grid2">' +
+        field(tr('field.location'),'text','t'+idx+'_etiqueta',tr('field.locationPh'),{value:v.etiqueta}) +
+        selectField(tr('field.room'),'t'+idx+'_ambiente', keyOptions(AMBIENTE_KEYS, ambienteLabel), v.ambiente) +
+      '</div>' +
+      '<div class="grid3">' +
+        selectField(tr('field.material'),'t'+idx+'_materialTipo', keyOptions(MATERIAL_KEYS, materialLabel), v.materialTipo) +
+        field(tr('field.color'),'text','t'+idx+'_materialColor',tr('field.colorPh'),{value:v.materialColor}) +
+        selectField(tr('field.thickness'),'t'+idx+'_espesor', [{value:'2cm',label:'2 cm'},{value:'3cm',label:'3 cm'}], v.espesor) +
+      '</div>' +
+      '<div class="grid2">' +
+        '<label class="check-row"><input type="checkbox" name="t'+idx+'_backsplash" '+(v.backsplash?'checked':'')+'> '+esc(tr('field.backsplash'))+'</label>' +
+        selectField(tr('field.profile'),'t'+idx+'_perfil', keyOptions(PERFIL_KEYS, perfilLabel), v.perfil) +
+      '</div>' +
+      '<div class="grid3">' +
+        '<label class="check-row"><input type="checkbox" name="t'+idx+'_sink" '+(v.sink?'checked':'')+'> '+esc(tr('field.sink'))+'</label>' +
+        selectField(tr('field.sinkType'),'t'+idx+'_sinkTipo', keyOptions(SINK_KEYS, sinkLabel), v.sinkTipo) +
+        field(tr('field.faucetHoles'),'number','t'+idx+'_huecos','0',{value:v.huecos, min:0}) +
+      '</div>' +
+      '<div class="grid3">' +
+        field(tr('field.templadoDate'),'date','t'+idx+'_fechaTemplado','',{value:v.fechaTemplado}) +
+        field(tr('field.fabricacionDate'),'date','t'+idx+'_fechaFabricacion','',{value:v.fechaFabricacion}) +
+        field(tr('field.installDate'),'date','t'+idx+'_fecha','',{value:v.fecha}) +
+      '</div>' +
+      '<div class="grid2">' +
+        selectField(tr('field.installer'),'t'+idx+'_instalador', [{value:'',label:tr('field.installerLater')}].concat(workersByRole('instalador').map(function(w){return {value:w.id,label:w.nombre};})), v.instalador) +
+      '</div>' +
+      textareaField(tr('field.notes'),'t'+idx+'_notas',tr('field.notesPh'), v.notas) +
+    '</div>';
+  }
+
+  function adminClientes(){
+    if(state.clientes.length===0) return emptyState('👤',tr('clientes.empty'));
+    return '<div class="section-head"><div><span class="eyebrow">'+esc(tr('clientes.eyebrow'))+'</span><h2>'+esc(tr('clientes.title'))+'</h2></div></div>' +
+      '<div style="display:flex; flex-direction:column; gap:8px;">' + state.clientes.slice().sort(function(a,b){return b.creadoEn.localeCompare(a.creadoEn);}).map(function(c){
+        var tapas = tapasForCliente(c.id);
+        var falla = tapas.some(tapaHasFalla);
+        return '<div class="card" data-action="open-cliente" data-id="'+c.id+'" style="padding:14px 16px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:10px;">' +
+          '<div><div style="font-weight:700;">'+esc(c.nombre)+(falla?' <span class="chip chip-con_falla" style="margin-left:6px;">'+esc(tr('clientes.fallaTag'))+'</span>':'')+'</div><div class="footnote">'+esc(c.telefono||tr('clientes.noPhone'))+' · '+esc(c.direccion||tr('clientes.noAddress'))+'</div></div>' +
+          '<div class="footnote mono">'+tapas.length+' '+esc(unitSlab(tapas.length))+'</div>' +
+        '</div>';
+      }).join('') + '</div>';
+  }
+
+  function clienteDetalle(clienteId){
+    var c = clienteById(clienteId);
+    if(!c) return emptyState('⚠️','—');
+    var tapas = tapasForCliente(c.id);
+    return '<button class="back-link" data-action="admin-tab" data-tab="clientes">'+esc(tr('clienteDet.back'))+'</button>' +
+      '<div class="section-head"><div><span class="eyebrow">'+esc(tr('clienteDet.eyebrow'))+'</span><h2>'+esc(c.nombre)+'</h2></div></div>' +
+      '<div class="spec-grid card" style="padding:14px 16px;">' +
+        specItem(tr('field.phone'), c.telefono||'—') + specItem(tr('field.address'), c.direccion||'—') + specItem(tr('field.created'), fmtDate(c.creadoEn.slice(0,10))) +
+      '</div>' +
+      '<div style="display:flex; flex-direction:column; gap:10px;">' + tapas.map(function(t){return tapaCard(t,true);}).join('') + '</div>';
+  }
+  function specItem(k,v){ return '<div><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div></div>'; }
+
+  function adminEquipo(){
+    return '<div class="section-head"><div><span class="eyebrow">'+esc(tr('equipo.eyebrow'))+'</span><h2>'+esc(tr('equipo.title'))+'</h2></div></div>' +
+      '<div class="card" style="overflow-x:auto;"><table class="roster"><thead><tr><th>'+esc(tr('equipo.thName'))+'</th><th>'+esc(tr('equipo.thRole'))+'</th><th>'+esc(tr('equipo.thStatus'))+'</th><th></th></tr></thead><tbody>' +
+      state.workers.map(function(w){
+        return '<tr><td>'+esc(w.nombre)+'</td><td>'+esc(roleLabel(w.rol))+'</td><td>'+(w.activo?'<span class="chip chip-completado">'+esc(tr('equipo.active'))+'</span>':'<span class="chip chip-pendiente">'+esc(tr('equipo.inactive'))+'</span>')+'</td>' +
+        '<td style="text-align:right; white-space:nowrap;">' +
+          (w.rol!=='admin' && w.rol!=='encargado' ? '<button class="btn btn-sm btn-ghost" data-action="preview-worker" data-id="'+w.id+'">'+esc(tr('equipo.preview'))+'</button> ' : '') +
+          '<button class="btn btn-sm btn-ghost" data-action="reset-pin" data-id="'+w.id+'">'+esc(tr('equipo.resetPin'))+'</button> ' +
+          '<button class="btn btn-sm btn-ghost" data-action="toggle-worker" data-id="'+w.id+'">'+(w.activo?esc(tr('equipo.deactivate')):esc(tr('equipo.activate')))+'</button>' +
+        '</td></tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<fieldset><legend>'+esc(tr('equipo.addLegend'))+'</legend>' +
+      '<form data-form="nuevo-worker" style="display:flex; flex-direction:column; gap:12px;">' +
+        '<div class="grid3">' +
+          field(tr('field.name'),'text','nombre','') +
+          selectField(tr('field.role'),'rol', ROLE_KEYS.map(function(r){return {value:r, label:roleLabel(r)};})) +
+          field(tr('field.pin4'),'password','pin','',{maxlength:4, inputmode:'numeric', pattern:'[0-9]{4}'}) +
+        '</div>' +
+        selectField(tr('field.language'),'idioma', [{value:'es',label:'Español'},{value:'en',label:'English'}], locale) +
+        '<button class="btn btn-primary" type="submit" style="align-self:flex-start;">'+esc(tr('equipo.add'))+'</button>' +
+      '</form></fieldset>' +
+      '<p class="footnote">'+esc(trf('equipo.storageNote',{kb:approxStateSizeKB()}))+'</p>';
+  }
+
+  /* ============ WORKER ============ */
+  function screenWorker(w, isPreview){
+    if(route.name==='tapa-detalle') return topbar(w, isPreview) + (isPreview?previewBanner(w):'') + '<div class="main">' + tapaDetalle(route.params.tapaId, false, w) + '</div>';
+    var tasks = tasksForWorker(w);
+    var conFalla = tasks.filter(tapaHasFalla);
+    return topbar(w, isPreview) + (isPreview?previewBanner(w):'') + '<div class="main">' +
+      '<div class="section-head"><div><span class="eyebrow">'+esc(roleLabel(w.rol))+'</span><h2>'+esc(tr('worker.title'))+'</h2></div></div>' +
+      (conFalla.length>0 ? '<div class="banner banner-danger">'+iconAlert()+' '+esc(trf('worker.fallaBanner',{n:conFalla.length, unit:unitSlab(conFalla.length)}))+'</div>' : '') +
+      (tasks.length===0 ? emptyState('✅',tr('worker.empty')) :
+        '<div style="display:flex; flex-direction:column; gap:10px;">' + tasks.map(function(t){ return workerTaskItem(t,w); }).join('') + '</div>') +
+    '</div>';
+  }
+  function workerTaskItem(t,w){
+    var c = clienteById(t.clienteId);
+    var cur = currentStageKey(t);
+    var etapa = t.etapas[cur];
+    var relDate = relevantDateForStage(t, cur);
+    var overdue = relDate && daysUntil(relDate)<0 && etapa.estado!=='completado';
+    return '<div class="task-item'+(etapa.estado==='con_falla'?' falla':'')+'" data-action="open-tapa" data-id="'+t.id+'">' +
+      '<div class="top"><div><div class="cliente">'+esc(c?c.nombre:'—')+'</div><div class="sub">'+esc(t.etiqueta)+'</div></div>' +
+      '<span class="chip chip-'+etapa.estado+'">'+(etapa.estado==='con_falla'?iconAlert()+' '+esc(tr('task.falla')):etapa.estado==='en_progreso'?esc(tr('task.progress')):esc(tr('task.pending')))+'</span></div>' +
+      '<div class="tapa-meta">' +
+        '<span><b>'+esc(tr('task.material'))+'</b> '+esc(materialLabel(t.material.tipo))+(t.material.color?' '+esc(t.material.color):'')+'</span>' +
+        (relDate?'<span'+(overdue?' style="color:var(--danger); font-weight:600;"':'')+'><b>'+esc(tr('task.scheduledFor'))+'</b> '+fmtDate(relDate)+dateRelativeSuffix(relDate)+'</span>':'') +
+      '</div>' +
+    '</div>';
+  }
+
+  /* ============ TAPA DETAIL (shared) ============ */
+  function tapaEditForm(t){
+    return '<form data-form="editar-tapa" data-tapa="'+t.id+'" class="card" style="padding:14px 16px; display:flex; flex-direction:column; gap:12px;">' +
+      '<div class="grid2">' +
+        field(tr('field.location'),'text','etiqueta','',{value:t.etiqueta}) +
+        selectField(tr('field.room'),'ambiente', keyOptions(AMBIENTE_KEYS, ambienteLabel), t.ambiente) +
+      '</div>' +
+      '<div class="grid3">' +
+        selectField(tr('field.material'),'materialTipo', keyOptions(MATERIAL_KEYS, materialLabel), t.material.tipo) +
+        field(tr('field.color'),'text','materialColor',tr('field.colorPh'),{value:t.material.color}) +
+        selectField(tr('field.thickness'),'espesor', [{value:'2cm',label:'2 cm'},{value:'3cm',label:'3 cm'}], t.espesor) +
+      '</div>' +
+      '<div class="grid2">' +
+        field(tr('field.materialSerial'),'text','materialSerial',tr('field.materialSerialPh'),{value:t.material.serial}) +
+        field(tr('field.materialUbicacion'),'text','materialUbicacion',tr('field.materialUbicacionPh'),{value:t.material.ubicacion}) +
+      '</div>' +
+      '<div class="grid2">' +
+        '<label class="check-row"><input type="checkbox" name="backsplash" '+(t.backsplash?'checked':'')+'> '+esc(tr('field.backsplash'))+'</label>' +
+        selectField(tr('field.profile'),'perfil', keyOptions(PERFIL_KEYS, perfilLabel), t.perfil) +
+      '</div>' +
+      field(tr('field.backsplashMedida'),'text','backsplashMedida',tr('field.backsplashMedidaPh'),{value:t.backsplashMedida}) +
+      '<div class="grid3">' +
+        '<label class="check-row"><input type="checkbox" name="sink" '+(t.sink?'checked':'')+'> '+esc(tr('field.sink'))+'</label>' +
+        selectField(tr('field.sinkType'),'sinkTipo', keyOptions(SINK_KEYS, sinkLabel), t.sinkTipo) +
+        field(tr('field.faucetHoles'),'number','huecos','0',{value:t.huecos, min:0}) +
+      '</div>' +
+      field(tr('spec.measures'),'text','medidasFinales','',{value:t.medidasFinales}) +
+      '<div class="grid3">' +
+        field(tr('field.templadoDate'),'date','fechaTemplado','',{value:t.fechaTemplado}) +
+        field(tr('field.fabricacionDate'),'date','fechaFabricacion','',{value:t.fechaInicioFabricacion}) +
+        field(tr('field.installDate'),'date','fecha','',{value:t.fechaInstalacion}) +
+      '</div>' +
+      selectField(tr('field.installer'),'instalador', [{value:'',label:tr('field.installerLater')}].concat(workersByRole('instalador').map(function(w){return {value:w.id,label:w.nombre};})), t.instaladorId) +
+      textareaField(tr('field.notes'),'notas',tr('field.notesPh'), t.notas) +
+      '<div class="btn-row">' +
+        '<button class="btn btn-primary btn-sm" type="submit">'+esc(tr('tapa.save'))+'</button>' +
+        '<button class="btn btn-sm btn-ghost" type="button" data-action="cancel-edit-tapa">'+esc(tr('tapa.cancel'))+'</button>' +
+      '</div>' +
+    '</form>';
+  }
+  function tapaDetalle(tapaId, isAdminView, viewerWorker){
+    var t = state.tapas.filter(function(x){return x.id===tapaId;})[0];
+    if(!t) return emptyState('⚠️','—');
+    var c = clienteById(t.clienteId);
+    var w = viewerWorker || currentWorker();
+    var cur = currentStageKey(t);
+    var canEdit = w && (w.rol==='admin' || w.rol==='encargado') && !previewWorkerId;
+
+    var backLink = isAdminView ?
+      '<button class="back-link" data-action="admin-tab" data-tab="panel">'+esc(tr('back.panel'))+'</button>' :
+      '<button class="back-link" data-action="nav-home">'+esc(tr('back.tasks'))+'</button>';
+
+    if(canEdit && editingTapaId===t.id){
+      return backLink +
+        '<div class="detail-head"><div class="section-head"><div><span class="eyebrow">'+esc(c?c.nombre:'')+'</span><h2>'+esc(t.etiqueta)+'</h2></div></div></div>' +
+        tapaEditForm(t);
+    }
+
+    return backLink +
+      '<div class="detail-head">' +
+        '<div class="section-head"><div><span class="eyebrow">'+esc(c?c.nombre:'')+'</span><h2>'+esc(t.etiqueta)+'</h2></div>' +
+          '<div style="display:flex; gap:8px; align-items:center;">' +
+            (cur===null?'<span class="chip chip-completado">'+esc(tr('detail.delivered'))+'</span>':'') +
+            (canEdit ? '<button class="btn btn-sm btn-ghost" data-action="edit-tapa" data-tapa="'+t.id+'">'+esc(tr('tapa.edit'))+'</button>' : '') +
+            (canEdit ? '<button class="btn btn-sm btn-danger" data-action="delete-tapa" data-tapa="'+t.id+'">'+esc(tr('tapa.delete'))+'</button>' : '') +
+          '</div>' +
+        '</div>' +
+        stepper(t) +
+      '</div>' +
+      '<div class="card" style="padding:14px 16px;"><div class="spec-grid">' +
+        specItem(tr('spec.material'), materialLabel(t.material.tipo)+(t.material.color?' — '+t.material.color:'')) +
+        specItem(tr('spec.materialSerial'), t.material.serial||'—') +
+        specItem(tr('spec.materialUbicacion'), t.material.ubicacion||'—') +
+        specItem(tr('spec.thickness'), espesorLabel(t.espesor)) +
+        specItem(tr('spec.room'), ambienteLabel(t.ambiente)) +
+        specItem(tr('spec.backsplash'), t.backsplash?tr('spec.yes'):tr('spec.no')) +
+        (t.backsplash ? specItem(tr('spec.backsplashMedida'), t.backsplashMedida||tr('spec.measuresPending')) : '') +
+        specItem(tr('spec.profile'), perfilLabel(t.perfil)) +
+        specItem(tr('spec.sink'), t.sink? sinkLabel(t.sinkTipo) : tr('spec.sinkNone')) +
+        specItem(tr('spec.holes'), String(t.huecos||0)) +
+        specItem(tr('spec.measures'), t.medidasFinales||tr('spec.measuresPending')) +
+        specItem(tr('spec.templadoDate'), t.fechaTemplado?fmtDate(t.fechaTemplado):'—') +
+        specItem(tr('spec.fabricacionDate'), t.fechaInicioFabricacion?fmtDate(t.fechaInicioFabricacion):'—') +
+        specItem(tr('spec.installDate'), fmtDate(t.fechaInstalacion)) +
+        specItem(tr('spec.installer'), t.instaladorId? (workerById(t.instaladorId)?workerById(t.instaladorId).nombre:'—') : tr('spec.unassigned')) +
+      '</div>' + (t.notas?('<div style="padding:0 16px 14px; font-size:13px; color:var(--text-muted);"><b>'+esc(tr('spec.notes'))+'</b> '+esc(t.notas)+'</div>'):'') + '</div>' +
+      '<div class="timeline">' + STAGES.map(function(s,i){ return tlStage(t, s, i, w, isAdminView); }).join('') + '</div>'
+    ;
+  }
+
+  function tlStage(t, s, idx, w, isAdminView){
+    var etapa = t.etapas[s.key];
+    var isCurrent = currentStageKey(t)===s.key;
+    var canAct = canActOnStage(w, t, s.key) && isCurrent;
+    var cls = 'tl-stage' + (isCurrent?' current':'') + (etapa.estado==='con_falla'?' falla':'');
+    return '<div class="'+cls+'">' +
+      '<div class="tl-head"><div class="left"><span class="idx mono">'+(idx+1)+'</span><h4>'+esc(stageLabel(s.key))+'</h4></div>' +
+        '<span class="chip chip-'+etapa.estado+'">'+esc(tr('stage.'+etapa.estado))+'</span></div>' +
+      '<div class="tl-body">' +
+        (etapa.encargadoId||etapa.inicio ? '<div class="tl-people">' + (etapa.encargadoId?(esc(tr('stage.assignedTo'))+' <b>'+esc(workerById(etapa.encargadoId)?workerById(etapa.encargadoId).nombre:'—')+'</b> · '):'') + (etapa.inicio?(esc(tr('stage.started'))+' '+fmtDateTime(etapa.inicio)):'') + (etapa.fin?(' · '+esc(tr('stage.finished'))+' '+fmtDateTime(etapa.fin)):'') + '</div>' : '') +
+        (etapa.estado==='con_falla' && etapa.falla ? fallaBox(etapa.falla) : '') +
+        (etapa.comentarios.length ? '<div style="display:flex;flex-direction:column;gap:6px;">' + etapa.comentarios.map(function(cm){ return '<div class="comment"><div class="meta">'+esc(cm.autor)+' · '+fmtDateTime(cm.fecha)+'</div>'+esc(cm.texto)+'</div>'; }).join('') + '</div>' : '') +
+        (etapa.fotos.length ? '<div class="photo-grid">' + etapa.fotos.map(function(f,fi){ return '<img class="photo-thumb" src="'+f.dataUrl+'" data-action="view-photo" data-tapa="'+t.id+'" data-stage="'+s.key+'" data-idx="'+fi+'">'; }).join('') + '</div>' : '') +
+        (canAct ? stageActionPanel(t, s, etapa, w) : (isAdminView && etapa.estado==='completado' ? '<button class="btn btn-sm btn-ghost" data-action="reopen-stage" data-tapa="'+t.id+'" data-stage="'+s.key+'">'+esc(tr('stage.reopen'))+'</button>' : '')) +
+      '</div>' +
+    '</div>';
+  }
+  function fallaBox(f){
+    return '<div class="falla-box">' + iconAlert() + ' <b>'+esc(fallaTipoLabel(f.tipo))+'</b> — '+esc(tr('stage.reportedBy'))+' '+esc(f.reportadoPor)+' · '+fmtDateTime(f.fecha)+
+      (f.descripcion?('<br>'+esc(f.descripcion)):'') + '</div>';
+  }
+
+  function stageActionPanel(t, s, etapa, w){
+    var key = s.key;
+    if(etapa.estado==='pendiente'){
+      return '<div class="btn-row">' +
+        '<button class="btn btn-primary btn-sm" data-action="stage-start" data-tapa="'+t.id+'" data-stage="'+key+'">'+esc(tr('stage.start'))+'</button>' +
+      '</div>';
+    }
+    if(etapa.estado==='con_falla'){
+      return '<div class="btn-row">' +
+        '<button class="btn btn-sm" data-action="stage-retry" data-tapa="'+t.id+'" data-stage="'+key+'">'+esc(tr('stage.retry'))+'</button>' +
+        '<button class="btn btn-primary btn-sm" data-action="stage-resolve" data-tapa="'+t.id+'" data-stage="'+key+'">'+esc(tr('stage.resolve'))+'</button>' +
+      '</div>';
+    }
+    // en_progreso
+    var extra = '';
+    if(key==='material'){
+      extra = '<div class="grid2">' +
+        field(tr('field.materialSerial'),'text','materialSerial',tr('field.materialSerialPh'),{value:t.material.serial}) +
+        field(tr('field.materialUbicacion'),'text','materialUbicacion',tr('field.materialUbicacionPh'),{value:t.material.ubicacion}) +
+      '</div>';
+    }
+    if(key==='templado'){
+      extra = field(tr('stage.measuresLabel'),'text','medidasFinales',tr('stage.measuresPh'),{value:t.medidasFinales});
+      if(t.backsplash){
+        extra += field(tr('field.backsplashMedida'),'text','backsplashMedida',tr('field.backsplashMedidaPh'),{value:t.backsplashMedida});
+      }
+    }
+    if(key==='aprobacion'){
+      return '' +
+        '<form data-form="aprobacion" data-tapa="'+t.id+'">' +
+          '<fieldset><legend>'+esc(tr('approval.legend'))+'</legend><div style="display:flex; flex-direction:column; gap:10px;">' +
+            radioRow('resultado',[['aprobado',tr('approval.approved')],['aprobado_obs',tr('approval.approvedObs')],['rechazado',tr('approval.rejected')]]) +
+            textareaField(tr('approval.comment'),'comentario',tr('approval.commentPh')) +
+            '<button class="btn btn-primary btn-sm" type="submit" style="align-self:flex-start;">'+esc(tr('approval.save'))+'</button>' +
+          '</div></fieldset>' +
+        '</form>';
+    }
+    return '' +
+      '<form data-form="stage-comment" data-tapa="'+t.id+'" data-stage="'+key+'" style="display:flex; flex-direction:column; gap:10px;">' +
+        extra +
+        textareaField(tr('stage.addComment'),'comentario',tr('stage.commentPh')) +
+        '<div class="btn-row" style="align-items:center;">' +
+          '<label class="btn btn-sm" style="cursor:pointer;">'+iconCamera()+' '+esc(tr('stage.photo'))+'<input type="file" accept="image/*" capture="environment" data-photo-input data-tapa="'+t.id+'" data-stage="'+key+'" style="display:none;"></label>' +
+          '<button class="btn btn-sm" type="submit">'+esc(tr('stage.saveComment'))+'</button>' +
+          '<span style="flex:1"></span>' +
+          '<button type="button" class="btn btn-danger btn-sm" data-action="open-falla" data-tapa="'+t.id+'" data-stage="'+key+'">'+esc(tr('stage.reportFalla'))+'</button>' +
+          '<button type="button" class="btn btn-primary btn-sm" data-action="stage-complete" data-tapa="'+t.id+'" data-stage="'+key+'">'+esc(tr('stage.complete'))+'</button>' +
+        '</div>' +
+        (etapa.fotos.length===0 ? '<div class="photo-hint">'+esc(tr('stage.photoHint'))+'</div>' : '') +
+      '</form>';
+  }
+  function radioRow(name, opts){
+    return '<div class="btn-row">' + opts.map(function(o){ return '<label class="check-row" style="background:var(--surface-2); padding:7px 12px; border-radius:8px; border:1px solid var(--border);"><input type="radio" name="'+name+'" value="'+o[0]+'" required> '+esc(o[1])+'</label>'; }).join('') + '</div>';
+  }
+
+  /* ============ overlays: falla form, photo lightbox ============ */
+  function renderOverlay(){
+    var root = document.getElementById('overlay-root');
+    if(!overlayNode){ root.innerHTML=''; return; }
+    if(overlayNode.name==='falla'){
+      root.innerHTML = '<div class="overlay" data-action="close-overlay-bg"><div class="sheet">' +
+        '<h3>'+esc(tr('falla.title'))+'</h3>' +
+        '<form data-form="falla" data-tapa="'+overlayNode.params.tapaId+'" data-stage="'+overlayNode.params.stage+'" style="display:flex; flex-direction:column; gap:12px;">' +
+          selectField(tr('falla.type'),'tipo', keyOptions(FALLA_KEYS, fallaTipoLabel)) +
+          textareaField(tr('falla.desc'),'descripcion',tr('falla.descPh')) +
+          '<label class="btn" style="cursor:pointer; align-self:flex-start;">'+iconCamera()+' '+esc(tr('falla.attach'))+'<input type="file" accept="image/*" capture="environment" data-photo-input-falla style="display:none;"></label>' +
+          '<div id="falla-photo-preview"></div>' +
+          '<div class="btn-row"><button type="button" class="btn" data-action="close-overlay">'+esc(tr('falla.cancel'))+'</button><button type="submit" class="btn btn-danger">'+esc(tr('falla.submit'))+'</button></div>' +
+        '</form>' +
+      '</div></div>';
+    } else if(overlayNode.name==='photo'){
+      var t = state.tapas.filter(function(x){return x.id===overlayNode.params.tapaId;})[0];
+      var foto = t.etapas[overlayNode.params.stage].fotos[overlayNode.params.idx];
+      root.innerHTML = '<div class="lightbox" data-action="close-overlay-bg"><img src="'+(foto?foto.dataUrl:'')+'"></div>';
+    }
+    bindGlobalHandlers(root);
+  }
+  var fallaPhotoData = null;
+
+  /* ============ event binding ============ */
+  function bindGlobalHandlers(root){
+    root.querySelectorAll('[data-action]').forEach(function(el){
+      el.onclick = function(ev){ handleAction(el.getAttribute('data-action'), el, ev); };
+    });
+    root.querySelectorAll('[data-form]').forEach(function(el){
+      el.onsubmit = function(ev){ ev.preventDefault(); handleForm(el); };
+    });
+    root.querySelectorAll('[data-input="admin-search"]').forEach(function(el){
+      el.oninput = function(){ adminSearch = el.value; render(); var i=document.querySelector('[data-input="admin-search"]'); if(i){ i.focus(); i.setSelectionRange(i.value.length,i.value.length); } };
+    });
+    root.querySelectorAll('[data-photo-input]').forEach(function(el){
+      el.onchange = function(){
+        if(previewBlocked()){ el.value=''; return; }
+        var file = el.files[0]; if(!file) return;
+        var tapaId = el.getAttribute('data-tapa'), stage = el.getAttribute('data-stage');
+        /* Attaching a photo re-renders the whole panel (mutate() -> render()), which would
+           otherwise wipe anything the worker already typed (measurements, serial, comments)
+           into the sibling form fields before they hit save. Snapshot those field values here
+           and restore them into the freshly-rendered form once the photo is saved. */
+        var formEl = el.closest('form');
+        var preserved = formEl ? new FormData(formEl) : null;
+        compressImage(file).then(function(dataUrl){
+          mutate(function(st){
+            var t = st.tapas.filter(function(x){return x.id===tapaId;})[0];
+            t.etapas[stage].fotos.push({dataUrl:dataUrl, autor:currentWorker().nombre, fecha:nowISO()});
+          });
+          if(preserved){
+            var freshForm = document.querySelector('form[data-form="stage-comment"][data-tapa="'+tapaId+'"][data-stage="'+stage+'"]');
+            if(freshForm){
+              preserved.forEach(function(value, key){
+                var input = freshForm.querySelector('[name="'+key+'"]');
+                if(input && input.type!=='file'){ input.value = value; }
+              });
+            }
+          }
+        }).catch(function(){ alert(tr('alert.photoFail')); });
+      };
+    });
+    root.querySelectorAll('[data-photo-input-falla]').forEach(function(el){
+      el.onchange = function(){
+        if(previewBlocked()){ el.value=''; return; }
+        var file = el.files[0]; if(!file) return;
+        compressImage(file).then(function(dataUrl){
+          fallaPhotoData = dataUrl;
+          var prev = document.getElementById('falla-photo-preview');
+          if(prev) prev.innerHTML = '<img class="photo-thumb" src="'+dataUrl+'">';
+        }).catch(function(){ alert(tr('alert.photoFail')); });
+      };
+    });
+  }
+
+  function handleAction(action, el, ev){
+    if(MUTATING_ACTIONS.indexOf(action)>=0 && previewBlocked()) return;
+    if(action==='logout'){ session=null; try{localStorage.removeItem('cdt_session');}catch(e){} nav('home'); return; }
+    if(action==='set-locale'){
+      var newLoc = el.getAttribute('data-loc');
+      locale = newLoc;
+      try{ localStorage.setItem('cdt_locale', newLoc); }catch(e){}
+      var cw = currentWorker();
+      if(cw && !previewWorkerId){ mutate(function(st){ workerById2(st,cw.id).idioma = newLoc; }); } else { render(); }
+      return;
+    }
+    if(action==='preview-worker'){
+      var pid = el.getAttribute('data-id');
+      var pw = workerById(pid);
+      if(pw){
+        previewWorkerId = pid;
+        previewPriorLocale = locale;
+        locale = pw.idioma || locale;
+        route = {name:'home', params:{}};
+        render();
+      }
+      return;
+    }
+    if(action==='exit-preview'){
+      previewWorkerId = null;
+      if(previewPriorLocale){ locale = previewPriorLocale; previewPriorLocale = null; }
+      adminTab='equipo'; route={name:'admin',params:{}}; render();
+      return;
+    }
+    if(action==='pick-worker'){ pinTargetId=el.getAttribute('data-id'); pinBuffer=''; pinError=false; route={name:'pin',params:{}}; render(); return; }
+    if(action==='cancel-pin'){ pinTargetId=null; pinBuffer=''; render(); return; }
+    if(action==='pin-digit'){
+      if(pinBuffer.length>=4) return;
+      pinBuffer += el.getAttribute('data-d');
+      pinError=false;
+      if(pinBuffer.length===4){ tryPinLogin(); }
+      render();
+      return;
+    }
+    if(action==='pin-back'){ pinBuffer = pinBuffer.slice(0,-1); render(); return; }
+    if(action==='pin-clear'){ pinBuffer=''; render(); return; }
+    if(action==='admin-tab'){ adminTab = el.getAttribute('data-tab'); route={name:'admin',params:{}}; render(); return; }
+    if(action==='admin-filter'){ adminFilter = el.getAttribute('data-val'); render(); return; }
+    if(action==='open-tapa'){
+      var id = el.getAttribute('data-id');
+      var w = previewWorkerId ? workerById(previewWorkerId) : currentWorker();
+      if((w.rol==='admin' || w.rol==='encargado') && !previewWorkerId){ adminTab='tapa-detalle'; route={name:'admin',params:{tapaId:id}}; }
+      else { route={name:'tapa-detalle',params:{tapaId:id}}; }
+      render(); window.scrollTo(0,0); return;
+    }
+    if(action==='open-cliente'){ adminTab='cliente-detalle'; route={name:'admin',params:{clienteId:el.getAttribute('data-id')}}; render(); return; }
+    if(action==='nav-home'){ route={name:'home',params:{}}; render(); return; }
+    if(action==='add-tapa-block'){ readTapaBlocksFromDom(); newClienteTapas.push({}); render(); return; }
+    if(action==='remove-tapa-block'){ var idx=parseInt(el.getAttribute('data-idx'),10); readTapaBlocksFromDom(); newClienteTapas.splice(idx,1); render(); return; }
+    if(action==='reset-pin'){
+      var id2 = el.getAttribute('data-id'); var np = prompt(tr('prompt.newPin'));
+      if(np && /^[0-9]{4}$/.test(np)){ mutate(function(st){ workerById2(st,id2).pin=np; }); } else if(np!==null){ alert(tr('alert.pin4')); }
+      return;
+    }
+    if(action==='toggle-worker'){
+      var id3=el.getAttribute('data-id');
+      var target=workerById(id3);
+      if(target && target.rol==='admin' && target.activo){
+        var otherActiveAdmins = state.workers.filter(function(w2){return w2.rol==='admin' && w2.activo && w2.id!==id3;}).length;
+        if(otherActiveAdmins===0){ alert(tr('alert.lastAdmin')); return; }
+      }
+      mutate(function(st){ var w2=workerById2(st,id3); w2.activo=!w2.activo; });
+      return;
+    }
+    if(action==='preview-worker'){ /* handled above */ return; }
+    if(action==='stage-start'){ doStageStart(el); return; }
+    if(action==='stage-complete'){ doStageComplete(el); return; }
+    if(action==='stage-retry'){ doStageRetry(el); return; }
+    if(action==='stage-resolve'){ doStageResolve(el); return; }
+    if(action==='reopen-stage'){ doReopenStage(el); return; }
+    if(action==='open-falla'){ fallaPhotoData=null; openOverlay('falla',{tapaId:el.getAttribute('data-tapa'), stage:el.getAttribute('data-stage')}); return; }
+    if(action==='close-overlay'){ closeOverlay(); return; }
+    if(action==='close-overlay-bg'){ if(!ev || el===ev.target){ closeOverlay(); } return; }
+    if(action==='view-photo'){ openOverlay('photo',{tapaId:el.getAttribute('data-tapa'), stage:el.getAttribute('data-stage'), idx:parseInt(el.getAttribute('data-idx'),10)}); return; }
+    if(action==='edit-tapa'){ editingTapaId = el.getAttribute('data-tapa'); render(); return; }
+    if(action==='cancel-edit-tapa'){ editingTapaId = null; render(); return; }
+    if(action==='delete-tapa'){
+      var delId = el.getAttribute('data-tapa');
+      if(!confirm(tr('confirm.deleteTapa'))) return;
+      mutate(function(st){ st.tapas = st.tapas.filter(function(x){return x.id!==delId;}); });
+      editingTapaId = null;
+      adminTab='panel'; route={name:'admin',params:{}}; render();
+      return;
+    }
+  }
+  function workerById2(st,id){ return st.workers.filter(function(w){return w.id===id;})[0]; }
+
+  function tryPinLogin(){
+    var w = workerById(pinTargetId);
+    if(w && w.pin===pinBuffer){
+      session = {workerId:w.id};
+      try{ localStorage.setItem('cdt_session', JSON.stringify(session)); }catch(e){}
+      if(w.idioma){ locale = w.idioma; try{ localStorage.setItem('cdt_locale', locale); }catch(e){} }
+      pinTargetId=null; pinBuffer='';
+      route={name:'home',params:{}};
+    } else {
+      pinError = true; pinBuffer='';
+    }
+  }
+
+  function readTapaBlocksFromDom(){
+    var blocks = document.querySelectorAll('[data-tapa-idx]');
+    var result = [];
+    blocks.forEach(function(b){
+      var idx = b.getAttribute('data-tapa-idx');
+      function g(n){ var f=b.querySelector('[name="t'+idx+'_'+n+'"]'); return f?(f.type==='checkbox'?f.checked:f.value):undefined; }
+      result.push({ etiqueta:g('etiqueta'), ambiente:g('ambiente'), materialTipo:g('materialTipo'), materialColor:g('materialColor'), espesor:g('espesor'), backsplash:g('backsplash'), perfil:g('perfil'), sink:g('sink'), sinkTipo:g('sinkTipo'), huecos:g('huecos'), fechaTemplado:g('fechaTemplado'), fechaFabricacion:g('fechaFabricacion'), fecha:g('fecha'), instalador:g('instalador'), notas:g('notas') });
+    });
+    newClienteTapas = result;
+  }
+
+  function handleForm(formEl){
+    var kind = formEl.getAttribute('data-form');
+    if(MUTATING_FORMS.indexOf(kind)>=0 && previewBlocked()) return;
+    var fd = new FormData(formEl);
+    if(kind==='bootstrap'){
+      var nombre=fd.get('nombre'), pin=fd.get('pin'), pin2=fd.get('pin2');
+      if(!/^[0-9]{4}$/.test(pin)){ alert(tr('alert.pin4')); return; }
+      if(pin!==pin2){ alert(tr('alert.pinMatch')); return; }
+      mutate(function(st){ st.workers.push({id:uid('w'), nombre:nombre, rol:'admin', pin:pin, idioma:locale, activo:true, creadoEn:nowISO()}); });
+      var w = state.workers[state.workers.length-1];
+      session={workerId:w.id}; try{localStorage.setItem('cdt_session', JSON.stringify(session));}catch(e){}
+      route={name:'home',params:{}}; render();
+      return;
+    }
+    if(kind==='nuevo-worker'){
+      var nombre2=fd.get('nombre'), rol=fd.get('rol'), pin3=fd.get('pin'), idioma2=fd.get('idioma')||'es';
+      if(!nombre2 || !/^[0-9]{4}$/.test(pin3)){ alert(tr('alert.nameAndPin')); return; }
+      mutate(function(st){ st.workers.push({id:uid('w'), nombre:nombre2, rol:rol, pin:pin3, idioma:idioma2, activo:true, creadoEn:nowISO()}); });
+      formEl.reset();
+      return;
+    }
+    if(kind==='nuevo-cliente'){
+      readTapaBlocksFromDom();
+      var cn = fd.get('clienteNombre');
+      if(!cn){ alert(tr('alert.clientName')); return; }
+      var blocks = newClienteTapas.slice();
+      mutate(function(st){
+        var cliente = {id:uid('c'), nombre:cn, telefono:fd.get('clienteTelefono')||'', direccion:fd.get('clienteDireccion')||'', creadoEn:nowISO(), creadoPor:currentWorker().nombre};
+        st.clientes.push(cliente);
+        blocks.forEach(function(b, i){
+          st.tapas.push({
+            id:uid('t'), clienteId:cliente.id,
+            etiqueta:b.etiqueta || trf('nuevo.tapaEyebrow',{n:i+1}),
+            ambiente:b.ambiente||'', material:{tipo:b.materialTipo||'granito', color:b.materialColor||'', serial:'', ubicacion:''},
+            espesor:b.espesor||'2cm', backsplash: !!b.backsplash, backsplashMedida:'', perfil:b.perfil||'', sink: !!b.sink, sinkTipo: b.sink? (b.sinkTipo||''):'',
+            huecos: parseInt(b.huecos||0,10)||0,
+            fechaTemplado:b.fechaTemplado||'', fechaInicioFabricacion:b.fechaFabricacion||'', fechaInstalacion:b.fecha||'', instaladorId:b.instalador||null,
+            notas:b.notas||'', medidasFinales:'', creadoEn:nowISO(), etapas:newTapaEtapas()
+          });
+        });
+      });
+      newClienteTapas=[{}];
+      adminTab='panel'; route={name:'admin',params:{}}; render();
+      return;
+    }
+    if(kind==='editar-tapa'){
+      var editTapaId = formEl.getAttribute('data-tapa');
+      mutate(function(st){
+        var t = st.tapas.filter(function(x){return x.id===editTapaId;})[0];
+        if(!t) return;
+        t.etiqueta = fd.get('etiqueta') || t.etiqueta;
+        t.ambiente = fd.get('ambiente') || '';
+        t.material.tipo = fd.get('materialTipo') || t.material.tipo;
+        t.material.color = fd.get('materialColor') || '';
+        t.material.serial = fd.get('materialSerial') || '';
+        t.material.ubicacion = fd.get('materialUbicacion') || '';
+        t.espesor = fd.get('espesor') || t.espesor;
+        t.backsplash = !!fd.get('backsplash');
+        t.backsplashMedida = t.backsplash ? (fd.get('backsplashMedida') || '') : '';
+        t.perfil = fd.get('perfil') || '';
+        t.sink = !!fd.get('sink');
+        t.sinkTipo = t.sink ? (fd.get('sinkTipo') || '') : '';
+        t.huecos = parseInt(fd.get('huecos') || 0, 10) || 0;
+        t.medidasFinales = fd.get('medidasFinales') || '';
+        t.fechaTemplado = fd.get('fechaTemplado') || '';
+        t.fechaInicioFabricacion = fd.get('fechaFabricacion') || '';
+        t.fechaInstalacion = fd.get('fecha') || t.fechaInstalacion;
+        t.instaladorId = fd.get('instalador') || null;
+        t.notas = fd.get('notas') || '';
+      });
+      editingTapaId = null;
+      render();
+      return;
+    }
+    if(kind==='stage-comment'){
+      var tapaId=formEl.getAttribute('data-tapa'), stage=formEl.getAttribute('data-stage');
+      mutate(function(st){
+        var t = st.tapas.filter(function(x){return x.id===tapaId;})[0];
+        applyStageExtras(t, stage, fd);
+      });
+      var ta = formEl.querySelector('textarea'); if(ta) ta.value='';
+      return;
+    }
+    if(kind==='falla'){
+      var tapaId2=formEl.getAttribute('data-tapa'), stage2=formEl.getAttribute('data-stage');
+      var tipo=fd.get('tipo'), desc=fd.get('descripcion');
+      mutate(function(st){
+        var t = st.tapas.filter(function(x){return x.id===tapaId2;})[0];
+        var f = {tipo:tipo, descripcion:desc||'', reportadoPor:currentWorker().nombre, fecha:nowISO(), resuelto:false};
+        t.etapas[stage2].estado='con_falla';
+        t.etapas[stage2].falla=f;
+        if(fallaPhotoData){ t.etapas[stage2].fotos.push({dataUrl:fallaPhotoData, autor:currentWorker().nombre, fecha:nowISO()}); }
+        t.fallas = t.fallas||[]; t.fallas.push(Object.assign({etapa:stage2}, f));
+      });
+      fallaPhotoData=null;
+      closeOverlay();
+      return;
+    }
+    if(kind==='aprobacion'){
+      var tapaId3=formEl.getAttribute('data-tapa');
+      var resultado=fd.get('resultado'), comentario2=fd.get('comentario');
+      mutate(function(st){
+        var t = st.tapas.filter(function(x){return x.id===tapaId3;})[0];
+        var etapa=t.etapas['aprobacion'];
+        if(comentario2 && comentario2.trim()) etapa.comentarios.push({autor:currentWorker().nombre, texto:comentario2.trim(), fecha:nowISO()});
+        if(resultado==='rechazado'){
+          etapa.estado='con_falla';
+          etapa.falla={tipo:'rechazado_cliente', descripcion:comentario2||'', reportadoPor:currentWorker().nombre, fecha:nowISO(), resuelto:false};
+        } else {
+          etapa.estado='completado'; etapa.fin=nowISO(); etapa.encargadoId=currentWorker().id;
+          if(resultado==='aprobado_obs') etapa.comentarios.push({autor:currentWorker().nombre, texto:tr('approval.obsNote'), fecha:nowISO()});
+        }
+      });
+      return;
+    }
+  }
+
+  function applyStageExtras(t, stage, fd){
+    var comentario = fd.get('comentario');
+    var medidas = fd.get('medidasFinales');
+    var bsMedida = fd.get('backsplashMedida');
+    var matSerial = fd.get('materialSerial');
+    var matUbicacion = fd.get('materialUbicacion');
+    if(comentario && comentario.trim()) t.etapas[stage].comentarios.push({autor:currentWorker().nombre, texto:comentario.trim(), fecha:nowISO()});
+    if(medidas!==null && medidas!==undefined && medidas.trim()) t.medidasFinales = medidas.trim();
+    if(bsMedida!==null && bsMedida!==undefined && bsMedida.trim()) t.backsplashMedida = bsMedida.trim();
+    if(matSerial!==null && matSerial!==undefined && matSerial.trim()) t.material.serial = matSerial.trim();
+    if(matUbicacion!==null && matUbicacion!==undefined && matUbicacion.trim()) t.material.ubicacion = matUbicacion.trim();
+  }
+  function doStageStart(el){
+    var tapaId=el.getAttribute('data-tapa'), stage=el.getAttribute('data-stage');
+    mutate(function(st){
+      var t = st.tapas.filter(function(x){return x.id===tapaId;})[0];
+      t.etapas[stage].estado='en_progreso'; t.etapas[stage].inicio=nowISO(); t.etapas[stage].encargadoId=currentWorker().id;
+    });
+  }
+  function doStageComplete(el){
+    var tapaId=el.getAttribute('data-tapa'), stage=el.getAttribute('data-stage');
+    var tapa = state.tapas.filter(function(x){return x.id===tapaId;})[0];
+    if(!tapa || tapa.etapas[stage].fotos.length===0){ alert(tr('stage.photoRequired')); return; }
+    var formEl = el.closest('form');
+    var fd = formEl ? new FormData(formEl) : null;
+    mutate(function(st){
+      var t = st.tapas.filter(function(x){return x.id===tapaId;})[0];
+      if(fd) applyStageExtras(t, stage, fd);
+      t.etapas[stage].estado='completado'; t.etapas[stage].fin=nowISO();
+    });
+  }
+  function doStageRetry(el){
+    var tapaId=el.getAttribute('data-tapa'), stage=el.getAttribute('data-stage');
+    mutate(function(st){
+      var t = st.tapas.filter(function(x){return x.id===tapaId;})[0];
+      t.etapas[stage].estado='en_progreso';
+    });
+  }
+  function doStageResolve(el){
+    var tapaId=el.getAttribute('data-tapa'), stage=el.getAttribute('data-stage');
+    var tapa = state.tapas.filter(function(x){return x.id===tapaId;})[0];
+    if(!tapa || tapa.etapas[stage].fotos.length===0){ alert(tr('stage.photoRequired')); return; }
+    mutate(function(st){
+      var t = st.tapas.filter(function(x){return x.id===tapaId;})[0];
+      if(t.etapas[stage].falla) t.etapas[stage].falla.resuelto=true;
+      t.etapas[stage].estado='completado'; t.etapas[stage].fin=nowISO();
+    });
+  }
+  function doReopenStage(el){
+    var tapaId=el.getAttribute('data-tapa'), stage=el.getAttribute('data-stage');
+    if(!confirm(tr('confirm.reopen'))) return;
+    mutate(function(st){
+      var t = st.tapas.filter(function(x){return x.id===tapaId;})[0];
+      var idx = STAGES.map(function(s){return s.key;}).indexOf(stage);
+      for(var i=idx;i<STAGES.length;i++){
+        var k = STAGES[i].key;
+        t.etapas[k] = {estado:'pendiente', encargadoId:null, inicio:null, fin:null, comentarios:t.etapas[k].comentarios, fotos:t.etapas[k].fotos};
+      }
+    });
+  }
+
+  /* ============ router glue ============ */
+  function initialRoute(){
+    if(!session) route={name:'home',params:{}};
+  }
+  initialRoute();
+
+  // override render to check pin route
+  var _render = render;
+  render = function(){
+    if(route.name==='pin' && pinTargetId){
+      var app=document.getElementById('app'); app.innerHTML=screenPinEntry(pinTargetId); bindGlobalHandlers(app); renderOverlay(); return;
+    }
+    _render();
+  };
+
+  function renderLoading(){
+    var app=document.getElementById('app');
+    if(app) app.innerHTML = '<div class="center-shell"><div style="text-align:center; color:var(--text-muted); padding-top:40px;">'+esc(locale==='en'?'Loading…':'Cargando…')+'</div></div>';
+  }
+  renderLoading();
+  loadFromServer().then(function(){
+    render();
+    setInterval(pollState, POLL_MS);
+  });
+})();
+</script>
