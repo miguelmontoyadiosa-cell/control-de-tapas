@@ -337,6 +337,8 @@
       'back.panel':'← Panel', 'back.tasks':'← Tus tareas',
       'tapa.edit':'Editar', 'tapa.delete':'Eliminar tapa', 'tapa.save':'Guardar cambios', 'tapa.cancel':'Cancelar',
       'confirm.deleteTapa':'Esto elimina esta tapa y todo su historial de forma permanente. ¿Continuar?',
+      'cliente.delete':'Eliminar cliente',
+      'confirm.deleteCliente':'Esto elimina este cliente y TODAS sus tapas (con su historial) de forma permanente. ¿Continuar?',
       'archive.sending':'Enviando por correo…', 'archive.retry':'Reintentar envío y archivar',
       'archive.error':'No se pudo enviar el correo con la información del trabajo. Los datos siguen aquí — puedes reintentar.',
       'detail.delivered':'Entregada',
@@ -464,6 +466,8 @@
       'back.panel':'← Board', 'back.tasks':'← Your tasks',
       'tapa.edit':'Edit', 'tapa.delete':'Delete tapa', 'tapa.save':'Save changes', 'tapa.cancel':'Cancel',
       'confirm.deleteTapa':'This permanently deletes this tapa and its whole history. Continue?',
+      'cliente.delete':'Delete client',
+      'confirm.deleteCliente':'This permanently deletes this client and ALL of their tapas (with their history). Continue?',
       'archive.sending':'Sending by email…', 'archive.retry':'Retry send and archive',
       'archive.error':'Could not email the job info. The data is still here — you can retry.',
       'detail.delivered':'Delivered',
@@ -855,7 +859,7 @@
   }
 
   /* ============ mutating-action guard (for preview mode) ============ */
-  var MUTATING_ACTIONS = ['stage-start','stage-complete','stage-retry','stage-resolve','reopen-stage','delete-tapa','archive-tapa'];
+  var MUTATING_ACTIONS = ['stage-start','stage-complete','stage-retry','stage-resolve','reopen-stage','delete-tapa','archive-tapa','delete-cliente'];
   var MUTATING_FORMS = ['stage-comment','falla','aprobacion','editar-tapa'];
   var editingTapaId = null;
   function previewBlocked(){
@@ -1169,7 +1173,9 @@
     if(!c) return emptyState('⚠️','—');
     var tapas = tapasForCliente(c.id);
     return '<button class="back-link" data-action="admin-tab" data-tab="clientes">'+esc(tr('clienteDet.back'))+'</button>' +
-      '<div class="section-head"><div><span class="eyebrow">'+esc(tr('clienteDet.eyebrow'))+'</span><h2>'+esc(c.nombre)+'</h2></div></div>' +
+      '<div class="section-head"><div><span class="eyebrow">'+esc(tr('clienteDet.eyebrow'))+'</span><h2>'+esc(c.nombre)+'</h2></div>' +
+        '<button class="btn btn-sm btn-danger" data-action="delete-cliente" data-cliente="'+c.id+'">'+esc(tr('cliente.delete'))+'</button>' +
+      '</div>' +
       '<div class="spec-grid card" style="padding:14px 16px;">' +
         specItem(tr('field.phone'), c.telefono||'—') + specItem(tr('field.address'), c.direccion||'—') + specItem(tr('field.created'), fmtDate(c.creadoEn.slice(0,10))) +
       '</div>' +
@@ -1567,6 +1573,16 @@
       return;
     }
     if(action==='archive-tapa'){ archiveAndNotify(el.getAttribute('data-tapa')); return; }
+    if(action==='delete-cliente'){
+      var delClienteId = el.getAttribute('data-cliente');
+      if(!confirm(tr('confirm.deleteCliente'))) return;
+      mutate(function(st){
+        st.tapas = st.tapas.filter(function(x){return x.clienteId!==delClienteId;});
+        st.clientes = st.clientes.filter(function(x){return x.id!==delClienteId;});
+      });
+      adminTab='clientes'; route={name:'admin',params:{}}; render();
+      return;
+    }
   }
   function workerById2(st,id){ return st.workers.filter(function(w){return w.id===id;})[0]; }
 
