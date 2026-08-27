@@ -679,7 +679,7 @@
   }
 
   /* pick up changes saved from other devices */
-  var POLL_MS = 4000;
+  var POLL_MS = 18000;
   function pollState(){
     if(!initialLoadDone || pendingSave || saveInFlight || isFieldFocused()) return;
     fetch(STATE_API).then(function(r){ return r.json(); }).then(function(doc){
