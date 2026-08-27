@@ -337,6 +337,8 @@
       'back.panel':'← Panel', 'back.tasks':'← Tus tareas',
       'tapa.edit':'Editar', 'tapa.delete':'Eliminar tapa', 'tapa.save':'Guardar cambios', 'tapa.cancel':'Cancelar',
       'confirm.deleteTapa':'Esto elimina esta tapa y todo su historial de forma permanente. ¿Continuar?',
+      'archive.sending':'Enviando por correo…', 'archive.retry':'Reintentar envío y archivar',
+      'archive.error':'No se pudo enviar el correo con la información del trabajo. Los datos siguen aquí — puedes reintentar.',
       'detail.delivered':'Entregada',
       'spec.material':'Material', 'spec.thickness':'Espesor', 'spec.room':'Ambiente',
       'spec.backsplash':'Backsplash', 'spec.yes':'Sí', 'spec.no':'No',
@@ -462,6 +464,8 @@
       'back.panel':'← Board', 'back.tasks':'← Your tasks',
       'tapa.edit':'Edit', 'tapa.delete':'Delete tapa', 'tapa.save':'Save changes', 'tapa.cancel':'Cancel',
       'confirm.deleteTapa':'This permanently deletes this tapa and its whole history. Continue?',
+      'archive.sending':'Sending by email…', 'archive.retry':'Retry send and archive',
+      'archive.error':'Could not email the job info. The data is still here — you can retry.',
       'detail.delivered':'Delivered',
       'spec.material':'Material', 'spec.thickness':'Thickness', 'spec.room':'Room',
       'spec.backsplash':'Backsplash', 'spec.yes':'Yes', 'spec.no':'No',
@@ -616,7 +620,7 @@
   function loadFromServer(){
     return fetch(STATE_API).then(function(r){ return r.json(); }).then(function(doc){
       state = (doc && doc.state) || emptyState();
-      serverVersion = (doc && doc.version) || 1;
+      serverVersion = (doc && typeof doc.version==='number') ? doc.version : 0; // 0 = "nothing saved yet", must match the server's own baseline
       initialLoadDone = true;
       setSaveStatus('ok');
     }).catch(function(err){
@@ -726,6 +730,76 @@
   function activeWorkers(){ return state.workers.filter(function(w){return w.activo;}); }
   function workersByRole(r){ return activeWorkers().filter(function(w){return w.rol===r;}); }
 
+  /* ============ archive-on-complete: email full record, then remove from the app ============ */
+  var archiveStatus = {}; // tapaId -> 'sending' | 'error'
+  function setArchiveStatus(id, s){
+    if(s===null){ delete archiveStatus[id]; } else { archiveStatus[id] = s; }
+    render();
+  }
+  function buildTapaEmailSnapshot(t, c){
+    var instalador = t.instaladorId ? workerById(t.instaladorId) : null;
+    return {
+      cliente: { nombre: c?c.nombre:'', telefono: c?c.telefono:'', direccion: c?c.direccion:'' },
+      tapa: {
+        etiqueta: t.etiqueta,
+        ambiente: ambienteLabel(t.ambiente),
+        material: materialLabel(t.material.tipo) + (t.material.color?' — '+t.material.color:''),
+        materialSerial: t.material.serial||'',
+        materialUbicacion: t.material.ubicacion||'',
+        espesor: espesorLabel(t.espesor),
+        backsplash: !!t.backsplash,
+        backsplashMedida: t.backsplashMedida||'',
+        perfil: perfilLabel(t.perfil),
+        sink: t.sink ? sinkLabel(t.sinkTipo) : '',
+        huecos: t.huecos||0,
+        medidasFinales: t.medidasFinales||'',
+        fechaTemplado: t.fechaTemplado||'',
+        fechaInicioFabricacion: t.fechaInicioFabricacion||'',
+        fechaInstalacion: t.fechaInstalacion||'',
+        instalador: instalador?instalador.nombre:'',
+        notas: t.notas||'',
+        etapas: STAGES.map(function(s){
+          var e = t.etapas[s.key];
+          var w2 = e.encargadoId ? workerById(e.encargadoId) : null;
+          return {
+            label: stageLabel(s.key),
+            estado: tr('stage.'+e.estado),
+            responsable: w2?w2.nombre:'',
+            inicio: e.inicio||'',
+            fin: e.fin||'',
+            comentarios: e.comentarios.map(function(cm){ return {autor:cm.autor, texto:cm.texto, fecha:cm.fecha}; }),
+            fotos: e.fotos.map(function(f, i){ return {dataUrl:f.dataUrl, nombre: s.key+'-'+(i+1)+'.jpg'}; })
+          };
+        })
+      }
+    };
+  }
+  function afterArchiveCleanup(tapaId){
+    if(route.params && route.params.tapaId===tapaId){
+      if(adminTab==='tapa-detalle'){ adminTab='panel'; route={name:'admin',params:{}}; }
+      else { route={name:'home',params:{}}; }
+    }
+    render();
+  }
+  function archiveAndNotify(tapaId){
+    var t = state.tapas.filter(function(x){return x.id===tapaId;})[0];
+    if(!t) return;
+    var c = clienteById(t.clienteId);
+    var snapshot = buildTapaEmailSnapshot(t, c);
+    setArchiveStatus(tapaId, 'sending');
+    fetch('/api/notify-complete', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(snapshot)
+    }).then(function(r){
+      if(r.ok){
+        setArchiveStatus(tapaId, null);
+        mutate(function(st){ st.tapas = st.tapas.filter(function(x){return x.id!==tapaId;}); });
+        afterArchiveCleanup(tapaId);
+      } else {
+        setArchiveStatus(tapaId, 'error');
+      }
+    }).catch(function(){ setArchiveStatus(tapaId, 'error'); });
+  }
+
   /* tasks for a given worker: tapas whose current stage matches worker role */
   function tasksForWorker(worker){
     if(!worker) return [];
@@ -771,7 +845,7 @@
   }
 
   /* ============ mutating-action guard (for preview mode) ============ */
-  var MUTATING_ACTIONS = ['stage-start','stage-complete','stage-retry','stage-resolve','reopen-stage','delete-tapa'];
+  var MUTATING_ACTIONS = ['stage-start','stage-complete','stage-retry','stage-resolve','reopen-stage','delete-tapa','archive-tapa'];
   var MUTATING_FORMS = ['stage-comment','falla','aprobacion','editar-tapa'];
   var editingTapaId = null;
   function previewBlocked(){
@@ -1212,6 +1286,11 @@
             (canEdit ? '<button class="btn btn-sm btn-danger" data-action="delete-tapa" data-tapa="'+t.id+'">'+esc(tr('tapa.delete'))+'</button>' : '') +
           '</div>' +
         '</div>' +
+        (cur===null && archiveStatus[t.id]==='sending' ? '<div class="banner banner-info">'+esc(tr('archive.sending'))+'</div>' : '') +
+        (cur===null && archiveStatus[t.id]==='error' ?
+          '<div class="banner banner-danger">'+iconAlert()+' '+esc(tr('archive.error'))+
+            (canEdit ? ' <button class="btn btn-sm" data-action="archive-tapa" data-tapa="'+t.id+'">'+esc(tr('archive.retry'))+'</button>' : '') +
+          '</div>' : '') +
         stepper(t) +
       '</div>' +
       '<div class="card" style="padding:14px 16px;"><div class="spec-grid">' +
@@ -1477,6 +1556,7 @@
       adminTab='panel'; route={name:'admin',params:{}}; render();
       return;
     }
+    if(action==='archive-tapa'){ archiveAndNotify(el.getAttribute('data-tapa')); return; }
   }
   function workerById2(st,id){ return st.workers.filter(function(w){return w.id===id;})[0]; }
 
@@ -1617,6 +1697,8 @@
           if(resultado==='aprobado_obs') etapa.comentarios.push({autor:currentWorker().nombre, texto:tr('approval.obsNote'), fecha:nowISO()});
         }
       });
+      var tCheck = state.tapas.filter(function(x){return x.id===tapaId3;})[0];
+      if(tCheck && currentStageKey(tCheck)===null){ archiveAndNotify(tapaId3); }
       return;
     }
   }

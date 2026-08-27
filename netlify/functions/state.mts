@@ -27,7 +27,12 @@ export default async (req: Request, context: Context) => {
   if (req.method === "GET") {
     const doc = (await store().get(KEY, { type: "json" })) as StoredDoc | null;
     if (!doc) {
-      const fresh: StoredDoc = { version: 1, state: emptyState(), updatedAt: new Date().toISOString() };
+      // No document saved yet. version:0 here MUST match the currentVersion
+      // fallback used below in POST ("current ? current.version : 0") — if
+      // these ever disagree, the very first save against an empty store gets
+      // rejected as a false 409 conflict forever (every retry recomputes the
+      // same mismatch, since nothing ever actually gets written).
+      const fresh: StoredDoc = { version: 0, state: emptyState(), updatedAt: new Date().toISOString() };
       return new Response(JSON.stringify(fresh), { headers: { "content-type": "application/json" } });
     }
     return new Response(JSON.stringify(doc), { headers: { "content-type": "application/json" } });
@@ -52,7 +57,7 @@ export default async (req: Request, context: Context) => {
       // Someone else saved since this client last read. Reject so the client
       // can rebase (retry on top of the latest version) instead of silently
       // clobbering the newer save.
-      const latest: StoredDoc = current || { version: 1, state: emptyState(), updatedAt: new Date().toISOString() };
+      const latest: StoredDoc = current || { version: 0, state: emptyState(), updatedAt: new Date().toISOString() };
       return new Response(JSON.stringify(latest), { status: 409, headers: { "content-type": "application/json" } });
     }
 
