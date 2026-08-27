@@ -282,7 +282,15 @@
       'pin.enter':'ingresa tu PIN',
       'pin.wrong':'PIN incorrecto, intenta de nuevo.',
       'pin.clear':'Borrar',
-      'tab.panel':'Panel', 'tab.nuevo':'Nuevo cliente', 'tab.clientes':'Clientes', 'tab.equipo':'Equipo',
+      'tab.panel':'Panel', 'tab.nuevo':'Nuevo cliente', 'tab.clientes':'Clientes', 'tab.equipo':'Equipo', 'tab.tareas':'Tareas',
+      'tareas.eyebrow':'Tareas del día', 'tareas.title':'Tareas asignadas', 'tareas.addLegend':'Agregar tarea',
+      'field.taskTitle':'Tarea', 'field.taskTitlePh':'Ej. Limpiar la bodega de material',
+      'field.taskAssignedTo':'Asignar a', 'field.taskDate':'Fecha', 'field.chooseWorker':'— Selecciona un trabajador —',
+      'tareas.add':'Agregar tarea', 'tareas.empty':'No hay tareas agregadas todavía.',
+      'tareas.thTask':'Tarea', 'tareas.thAssigned':'Asignada a', 'tareas.thDate':'Fecha', 'tareas.thStatus':'Estado',
+      'tareas.done':'Hecha', 'tareas.pending':'Pendiente', 'tareas.markDone':'Marcar hecha', 'tareas.markUndone':'Reabrir',
+      'tareas.delete':'Eliminar', 'confirm.deleteTarea':'¿Eliminar esta tarea?',
+      'worker.tasksTitle':'Tareas asignadas', 'worker.tasksEmpty':'No tienes tareas asignadas por ahora.',
       'stat.activas':'Tapas activas', 'stat.falla':'Con falla', 'stat.hoy':'Instalaciones hoy', 'stat.semana':'Esta semana',
       'panel.eyebrow':'Tablero', 'panel.title':'Tapas en producción',
       'panel.search':'Buscar cliente…',
@@ -345,7 +353,7 @@
       'spec.material':'Material', 'spec.thickness':'Espesor', 'spec.room':'Ambiente',
       'spec.backsplash':'Backsplash', 'spec.yes':'Sí', 'spec.no':'No',
       'spec.profile':'Perfil de polichado', 'spec.sink':'Sink', 'spec.sinkNone':'No lleva',
-      'spec.holes':'Huecos para llaves', 'spec.measures':'Medidas finales', 'spec.measuresPending':'Pendiente de templado',
+      'spec.holes':'Huecos para llaves', 'spec.measuresPending':'Sin medir aún',
       'spec.installDate':'Fecha instalación', 'spec.installer':'Instalador', 'spec.unassigned':'Sin asignar',
       'spec.notes':'Notas:',
       'stage.pendiente':'Pendiente', 'stage.en_progreso':'En progreso', 'stage.completado':'Completado', 'stage.con_falla':'Con falla',
@@ -355,7 +363,6 @@
       'stage.start':'Iniciar',
       'stage.retry':'Reintentar (volver a trabajar)',
       'stage.resolve':'Marcar resuelto y completar',
-      'stage.measuresLabel':'Medidas finales (largo × ancho)', 'stage.measuresPh':'Ej. 118" × 26"',
       'approval.legend':'Aprobación del cliente',
       'approval.approved':'Aprobado', 'approval.approvedObs':'Aprobado con observaciones', 'approval.rejected':'Rechazado',
       'approval.comment':'Comentario del cliente (opcional)', 'approval.commentPh':'¿Qué dijo el cliente?',
@@ -372,6 +379,7 @@
       'preview.blocked':'Esto es solo una vista previa (modo solo lectura). Para actuar de verdad, esa persona debe iniciar sesión con su propio PIN.',
       'alert.pin4':'El PIN debe tener 4 dígitos.', 'alert.pinMatch':'Los PIN no coinciden.',
       'alert.nameAndPin':'Completa el nombre y un PIN de 4 dígitos.',
+      'alert.taskFields':'Escribe un título y selecciona a quién se le asigna.',
       'alert.clientName':'Ingresa el nombre del cliente.',
       'alert.photoFail':'No se pudo procesar la foto.',
       'prompt.newPin':'Nuevo PIN de 4 dígitos:',
@@ -411,7 +419,15 @@
       'pin.enter':'enter your PIN',
       'pin.wrong':'Wrong PIN, try again.',
       'pin.clear':'Clear',
-      'tab.panel':'Board', 'tab.nuevo':'New client', 'tab.clientes':'Clients', 'tab.equipo':'Team',
+      'tab.panel':'Board', 'tab.nuevo':'New client', 'tab.clientes':'Clients', 'tab.equipo':'Team', 'tab.tareas':'Tasks',
+      'tareas.eyebrow':'Daily tasks', 'tareas.title':'Assigned tasks', 'tareas.addLegend':'Add task',
+      'field.taskTitle':'Task', 'field.taskTitlePh':'E.g. Clean the material warehouse',
+      'field.taskAssignedTo':'Assign to', 'field.taskDate':'Date', 'field.chooseWorker':'— Choose a worker —',
+      'tareas.add':'Add task', 'tareas.empty':'No tasks added yet.',
+      'tareas.thTask':'Task', 'tareas.thAssigned':'Assigned to', 'tareas.thDate':'Date', 'tareas.thStatus':'Status',
+      'tareas.done':'Done', 'tareas.pending':'Pending', 'tareas.markDone':'Mark done', 'tareas.markUndone':'Reopen',
+      'tareas.delete':'Delete', 'confirm.deleteTarea':'Delete this task?',
+      'worker.tasksTitle':'Assigned tasks', 'worker.tasksEmpty':'You have no assigned tasks right now.',
       'stat.activas':'Active slabs', 'stat.falla':'With issue', 'stat.hoy':'Installs today', 'stat.semana':'This week',
       'panel.eyebrow':'Board', 'panel.title':'Slabs in production',
       'panel.search':'Search client…',
@@ -474,7 +490,7 @@
       'spec.material':'Material', 'spec.thickness':'Thickness', 'spec.room':'Room',
       'spec.backsplash':'Backsplash', 'spec.yes':'Yes', 'spec.no':'No',
       'spec.profile':'Edge profile', 'spec.sink':'Sink', 'spec.sinkNone':'None',
-      'spec.holes':'Faucet holes', 'spec.measures':'Final measurements', 'spec.measuresPending':'Pending template',
+      'spec.holes':'Faucet holes', 'spec.measuresPending':'Not measured yet',
       'spec.installDate':'Install date', 'spec.installer':'Installer', 'spec.unassigned':'Unassigned',
       'spec.notes':'Notes:',
       'stage.pendiente':'Pending', 'stage.en_progreso':'In progress', 'stage.completado':'Completed', 'stage.con_falla':'Issue reported',
@@ -484,7 +500,6 @@
       'stage.start':'Start',
       'stage.retry':'Retry (rework)',
       'stage.resolve':'Mark resolved & complete',
-      'stage.measuresLabel':'Final measurements (length × width)', 'stage.measuresPh':'E.g. 118" × 26"',
       'approval.legend':'Client approval',
       'approval.approved':'Approved', 'approval.approvedObs':'Approved with remarks', 'approval.rejected':'Rejected',
       'approval.comment':'Client comment (optional)', 'approval.commentPh':'What did the client say?',
@@ -501,6 +516,7 @@
       'preview.blocked':'This is only a preview (read-only mode). To actually act, that person needs to sign in with their own PIN.',
       'alert.pin4':'The PIN must be 4 digits.', 'alert.pinMatch':'The PINs don’t match.',
       'alert.nameAndPin':'Enter a name and a 4-digit PIN.',
+      'alert.taskFields':'Enter a title and choose who it’s assigned to.',
       'alert.clientName':'Enter the client’s name.',
       'alert.photoFail':'Couldn’t process the photo.',
       'prompt.newPin':'New 4-digit PIN:',
@@ -552,10 +568,10 @@
   }
 
   /* ============ constants ============ */
-  var STAGE_KEYS = ['material','templado','corte','fabricacion','pulido','instalacion','aprobacion'];
-  var STAGE_ROLE = {material:'admin', templado:'templero', corte:'cortador', fabricacion:'fabricador', pulido:'polichador', instalacion:'instalador', aprobacion:'instalador'};
+  var STAGE_KEYS = ['material','corte','fabricacion','pulido','instalacion','aprobacion'];
+  var STAGE_ROLE = {material:'admin', corte:'cortador', fabricacion:'fabricador', pulido:'admin', instalacion:'instalador', aprobacion:'instalador'};
   var STAGES = STAGE_KEYS.map(function(k){ return {key:k, role:STAGE_ROLE[k]}; });
-  var ROLE_KEYS = ['admin','encargado','templero','cortador','fabricador','polichador','instalador'];
+  var ROLE_KEYS = ['admin','encargado','cortador','fabricador','instalador'];
   var FALLA_KEYS = ['chip','quebrado','medida','pulido','veta','hueco','otro'];
   var PERFIL_KEYS = ['eased','bullnose','bullnose_doble','bevel','ogee','waterfall','otro'];
   var SINK_KEYS = ['undermount','topmount','farmhouse','otro'];
@@ -591,17 +607,16 @@
     return ' '+tr('card.overdue');
   }
   function relevantDateForStage(tapa, stageKey){
-    if(stageKey==='templado') return tapa.fechaTemplado;
     if(stageKey==='corte' || stageKey==='fabricacion') return tapa.fechaInicioFabricacion;
     if(stageKey==='instalacion') return tapa.fechaInstalacion;
     return null;
   }
 
   /* ============ state ============ */
-  function emptyState(){
-    return { version:1, workers:[], clientes:[], tapas:[] };
+  function freshState(){
+    return { version:1, workers:[], clientes:[], tapas:[], tareas:[] };
   }
-  var state = emptyState(); // replaced by the real shared state once loadFromServer() resolves
+  var state = freshState(); // replaced by the real shared state once loadFromServer() resolves
 
   var session = null;
   try{ var raw=localStorage.getItem('cdt_session'); if(raw) session=JSON.parse(raw); }catch(e){}
@@ -631,9 +646,15 @@
     return !!(el && (el.tagName==='INPUT' || el.tagName==='TEXTAREA' || el.tagName==='SELECT'));
   }
 
+  /* normalizes docs saved before a field existed (e.g. "tareas", added later) */
+  function normalizeState(st){
+    if(!st.tareas) st.tareas = [];
+    return st;
+  }
+
   function loadFromServer(){
     return fetch(STATE_API).then(function(r){ return r.json(); }).then(function(doc){
-      state = (doc && doc.state) || emptyState();
+      state = normalizeState((doc && doc.state) || freshState());
       serverVersion = (doc && typeof doc.version==='number') ? doc.version : 0; // 0 = "nothing saved yet", must match the server's own baseline
       initialLoadDone = true;
       setSaveStatus('ok');
@@ -698,7 +719,7 @@
     if(!initialLoadDone || pendingSave || saveInFlight || isFieldFocused()) return;
     fetch(STATE_API).then(function(r){ return r.json(); }).then(function(doc){
       if(doc && typeof doc.version==='number' && doc.version!==serverVersion){
-        state = doc.state || emptyState();
+        state = normalizeState(doc.state || freshState());
         serverVersion = doc.version;
         render();
       }
@@ -744,6 +765,16 @@
   function activeWorkers(){ return state.workers.filter(function(w){return w.activo;}); }
   function workersByRole(r){ return activeWorkers().filter(function(w){return w.rol===r;}); }
 
+  /* ============ custom day-to-day tasks (assigned by admin/encargado to any worker) ============ */
+  function allTareas(){ return state.tareas || []; }
+  function tareasForWorker(workerId){
+    return allTareas().filter(function(x){ return x.trabajadorId===workerId; }).sort(function(a,b){
+      var ad=a.hecha?1:0, bd=b.hecha?1:0;
+      if(ad!==bd) return ad-bd;
+      return (a.fecha||'9999').localeCompare(b.fecha||'9999');
+    });
+  }
+
   /* ============ archive-on-complete: email full record, then remove from the app ============ */
   var archiveStatus = {}; // tapaId -> 'sending' | 'error'
   function setArchiveStatus(id, s){
@@ -766,7 +797,6 @@
         perfil: t.perfil ? trEn('perfil.'+t.perfil) : '—',
         sink: t.sink ? trEn('sink.'+t.sinkTipo) : '',
         huecos: t.huecos||0,
-        medidasFinales: t.medidasFinales||'',
         fechaTemplado: t.fechaTemplado||'',
         fechaInicioFabricacion: t.fechaInicioFabricacion||'',
         fechaInstalacion: t.fechaInstalacion||'',
@@ -859,8 +889,8 @@
   }
 
   /* ============ mutating-action guard (for preview mode) ============ */
-  var MUTATING_ACTIONS = ['stage-start','stage-complete','stage-retry','stage-resolve','reopen-stage','delete-tapa','archive-tapa','delete-cliente'];
-  var MUTATING_FORMS = ['stage-comment','falla','aprobacion','editar-tapa'];
+  var MUTATING_ACTIONS = ['stage-start','stage-complete','stage-retry','stage-resolve','reopen-stage','delete-tapa','archive-tapa','delete-cliente','toggle-tarea','delete-tarea'];
+  var MUTATING_FORMS = ['stage-comment','falla','aprobacion','editar-tapa','nueva-tarea'];
   var editingTapaId = null;
   function previewBlocked(){
     if(previewWorkerId){ alert(tr('preview.blocked')); return true; }
@@ -1014,7 +1044,7 @@
   var adminSearch = '';
 
   function screenAdmin(){
-    var tabs = [['panel',tr('tab.panel')],['nuevo',tr('tab.nuevo')],['clientes',tr('tab.clientes')],['equipo',tr('tab.equipo')]];
+    var tabs = [['panel',tr('tab.panel')],['nuevo',tr('tab.nuevo')],['clientes',tr('tab.clientes')],['tareas',tr('tab.tareas')],['equipo',tr('tab.equipo')]];
     return topbar() +
       '<div class="tabbar">' +
         tabs.map(function(p){
@@ -1028,6 +1058,7 @@
     if(adminTab==='panel') return adminPanel();
     if(adminTab==='nuevo') return adminNuevoCliente();
     if(adminTab==='clientes') return adminClientes();
+    if(adminTab==='tareas') return adminTareas();
     if(adminTab==='equipo') return adminEquipo();
     if(adminTab==='tapa-detalle') return tapaDetalle(route.params.tapaId, true, null);
     if(adminTab==='cliente-detalle') return clienteDetalle(route.params.clienteId);
@@ -1183,11 +1214,48 @@
   }
   function specItem(k,v){ return '<div><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div></div>'; }
 
+  function adminTareas(){
+    var list = allTareas().slice().sort(function(a,b){
+      var ad=a.hecha?1:0, bd=b.hecha?1:0;
+      if(ad!==bd) return ad-bd;
+      return (a.fecha||'9999').localeCompare(b.fecha||'9999');
+    });
+    var workerOpts = [{value:'', label:tr('field.chooseWorker')}].concat(activeWorkers().filter(function(w){return w.rol!=='admin' && w.rol!=='encargado';})
+      .map(function(w){ return {value:w.id, label:w.nombre+' — '+roleLabel(w.rol)}; }));
+    return '<div class="section-head"><div><span class="eyebrow">'+esc(tr('tareas.eyebrow'))+'</span><h2>'+esc(tr('tareas.title'))+'</h2></div></div>' +
+      '<fieldset><legend>'+esc(tr('tareas.addLegend'))+'</legend>' +
+      '<form data-form="nueva-tarea" style="display:flex; flex-direction:column; gap:12px;">' +
+        field(tr('field.taskTitle'),'text','titulo',tr('field.taskTitlePh'),{required:true}) +
+        '<div class="grid2">' +
+          selectField(tr('field.taskAssignedTo'),'trabajadorId', workerOpts, null, {required:true}) +
+          field(tr('field.taskDate'),'date','fecha','',{value:todayISO()}) +
+        '</div>' +
+        '<button class="btn btn-primary" type="submit" style="align-self:flex-start;">'+esc(tr('tareas.add'))+'</button>' +
+      '</form></fieldset>' +
+      (list.length===0 ? emptyState('🗒️',tr('tareas.empty')) :
+        '<div class="card" style="overflow-x:auto;"><table class="roster"><thead><tr>' +
+          '<th>'+esc(tr('tareas.thTask'))+'</th><th>'+esc(tr('tareas.thAssigned'))+'</th><th>'+esc(tr('tareas.thDate'))+'</th><th>'+esc(tr('tareas.thStatus'))+'</th><th></th>' +
+        '</tr></thead><tbody>' + list.map(function(x){
+          var w = workerById(x.trabajadorId);
+          return '<tr><td>'+esc(x.titulo)+'</td><td>'+esc(w?w.nombre+' — '+roleLabel(w.rol):'—')+'</td><td>'+(x.fecha?fmtDate(x.fecha):'—')+'</td>' +
+            '<td>'+(x.hecha?'<span class="chip chip-completado">'+esc(tr('tareas.done'))+'</span>':'<span class="chip chip-pendiente">'+esc(tr('tareas.pending'))+'</span>')+'</td>' +
+            '<td style="text-align:right; white-space:nowrap;">' +
+              '<button class="btn btn-sm btn-ghost" data-action="toggle-tarea" data-id="'+x.id+'">'+(x.hecha?esc(tr('tareas.markUndone')):esc(tr('tareas.markDone')))+'</button> ' +
+              '<button class="btn btn-sm btn-danger" data-action="delete-tarea" data-id="'+x.id+'">'+esc(tr('tareas.delete'))+'</button>' +
+            '</td></tr>';
+        }).join('') + '</tbody></table></div>');
+  }
+
   function adminEquipo(){
     return '<div class="section-head"><div><span class="eyebrow">'+esc(tr('equipo.eyebrow'))+'</span><h2>'+esc(tr('equipo.title'))+'</h2></div></div>' +
       '<div class="card" style="overflow-x:auto;"><table class="roster"><thead><tr><th>'+esc(tr('equipo.thName'))+'</th><th>'+esc(tr('equipo.thRole'))+'</th><th>'+esc(tr('equipo.thStatus'))+'</th><th></th></tr></thead><tbody>' +
       state.workers.map(function(w){
-        return '<tr><td>'+esc(w.nombre)+'</td><td>'+esc(roleLabel(w.rol))+'</td><td>'+(w.activo?'<span class="chip chip-completado">'+esc(tr('equipo.active'))+'</span>':'<span class="chip chip-pendiente">'+esc(tr('equipo.inactive'))+'</span>')+'</td>' +
+        var roleOpts = ROLE_KEYS.slice();
+        if(roleOpts.indexOf(w.rol)<0) roleOpts = [w.rol].concat(roleOpts);
+        var roleSelect = '<select data-role-select data-id="'+w.id+'" style="padding:4px 6px; font-size:13px;">' +
+          roleOpts.map(function(r){ return '<option value="'+r+'"'+(r===w.rol?' selected':'')+'>'+esc(roleLabel(r))+'</option>'; }).join('') +
+        '</select>';
+        return '<tr><td>'+esc(w.nombre)+'</td><td>'+roleSelect+'</td><td>'+(w.activo?'<span class="chip chip-completado">'+esc(tr('equipo.active'))+'</span>':'<span class="chip chip-pendiente">'+esc(tr('equipo.inactive'))+'</span>')+'</td>' +
         '<td style="text-align:right; white-space:nowrap;">' +
           (w.rol!=='admin' && w.rol!=='encargado' ? '<button class="btn btn-sm btn-ghost" data-action="preview-worker" data-id="'+w.id+'">'+esc(tr('equipo.preview'))+'</button> ' : '') +
           '<button class="btn btn-sm btn-ghost" data-action="reset-pin" data-id="'+w.id+'">'+esc(tr('equipo.resetPin'))+'</button> ' +
@@ -1212,11 +1280,24 @@
     if(route.name==='tapa-detalle') return topbar(w, isPreview) + (isPreview?previewBanner(w):'') + '<div class="main">' + tapaDetalle(route.params.tapaId, false, w) + '</div>';
     var tasks = tasksForWorker(w);
     var conFalla = tasks.filter(tapaHasFalla);
+    var tareasAsignadas = tareasForWorker(w.id);
     return topbar(w, isPreview) + (isPreview?previewBanner(w):'') + '<div class="main">' +
       '<div class="section-head"><div><span class="eyebrow">'+esc(roleLabel(w.rol))+'</span><h2>'+esc(tr('worker.title'))+'</h2></div></div>' +
       (conFalla.length>0 ? '<div class="banner banner-danger">'+iconAlert()+' '+esc(trf('worker.fallaBanner',{n:conFalla.length, unit:unitSlab(conFalla.length)}))+'</div>' : '') +
       (tasks.length===0 ? emptyState('✅',tr('worker.empty')) :
         '<div style="display:flex; flex-direction:column; gap:10px;">' + tasks.map(function(t){ return workerTaskItem(t,w); }).join('') + '</div>') +
+      (tareasAsignadas.length ?
+        '<div class="section-head" style="margin-top:8px;"><div><span class="eyebrow">'+esc(roleLabel(w.rol))+'</span><h2>'+esc(tr('worker.tasksTitle'))+'</h2></div></div>' +
+        '<div style="display:flex; flex-direction:column; gap:10px;">' + tareasAsignadas.map(function(x){ return workerTareaItem(x,isPreview); }).join('') + '</div>'
+        : '') +
+    '</div>';
+  }
+  function workerTareaItem(x,isPreview){
+    var overdue = x.fecha && daysUntil(x.fecha)<0 && !x.hecha;
+    return '<div class="task-item'+(x.hecha?'':'')+'">' +
+      '<div class="top"><div><div class="cliente">'+esc(x.titulo)+'</div>'+(x.fecha?('<div class="sub"'+(overdue?' style="color:var(--danger); font-weight:600;"':'')+'>'+fmtDate(x.fecha)+dateRelativeSuffix(x.fecha)+'</div>'):'')+'</div>' +
+      '<span class="chip chip-'+(x.hecha?'completado':'pendiente')+'">'+(x.hecha?esc(tr('tareas.done')):esc(tr('tareas.pending')))+'</span></div>' +
+      (isPreview ? '' : '<div class="btn-row" style="margin-top:8px;"><button class="btn btn-sm" type="button" data-action="toggle-tarea" data-id="'+x.id+'">'+(x.hecha?esc(tr('tareas.markUndone')):esc(tr('tareas.markDone')))+'</button></div>') +
     '</div>';
   }
   function workerTaskItem(t,w){
@@ -1261,7 +1342,6 @@
         selectField(tr('field.sinkType'),'sinkTipo', keyOptions(SINK_KEYS, sinkLabel), t.sinkTipo) +
         field(tr('field.faucetHoles'),'number','huecos','0',{value:t.huecos, min:0}) +
       '</div>' +
-      field(tr('spec.measures'),'text','medidasFinales','',{value:t.medidasFinales}) +
       '<div class="grid3">' +
         field(tr('field.templadoDate'),'date','fechaTemplado','',{value:t.fechaTemplado}) +
         field(tr('field.fabricacionDate'),'date','fechaFabricacion','',{value:t.fechaInicioFabricacion}) +
@@ -1320,7 +1400,6 @@
         specItem(tr('spec.profile'), perfilLabel(t.perfil)) +
         specItem(tr('spec.sink'), t.sink? sinkLabel(t.sinkTipo) : tr('spec.sinkNone')) +
         specItem(tr('spec.holes'), String(t.huecos||0)) +
-        specItem(tr('spec.measures'), t.medidasFinales||tr('spec.measuresPending')) +
         specItem(tr('spec.templadoDate'), t.fechaTemplado?fmtDate(t.fechaTemplado):'—') +
         specItem(tr('spec.fabricacionDate'), t.fechaInicioFabricacion?fmtDate(t.fechaInicioFabricacion):'—') +
         specItem(tr('spec.installDate'), fmtDate(t.fechaInstalacion)) +
@@ -1372,12 +1451,6 @@
         field(tr('field.materialSerial'),'text','materialSerial',tr('field.materialSerialPh'),{value:t.material.serial}) +
         field(tr('field.materialUbicacion'),'text','materialUbicacion',tr('field.materialUbicacionPh'),{value:t.material.ubicacion}) +
       '</div>';
-    }
-    if(key==='templado'){
-      extra = field(tr('stage.measuresLabel'),'text','medidasFinales',tr('stage.measuresPh'),{value:t.medidasFinales});
-      if(t.backsplash){
-        extra += field(tr('field.backsplashMedida'),'text','backsplashMedida',tr('field.backsplashMedidaPh'),{value:t.backsplashMedida});
-      }
     }
     if(key==='aprobacion'){
       return '' +
@@ -1441,6 +1514,13 @@
     });
     root.querySelectorAll('[data-input="admin-search"]').forEach(function(el){
       el.oninput = function(){ adminSearch = el.value; render(); var i=document.querySelector('[data-input="admin-search"]'); if(i){ i.focus(); i.setSelectionRange(i.value.length,i.value.length); } };
+    });
+    root.querySelectorAll('[data-role-select]').forEach(function(el){
+      el.onchange = function(){
+        if(previewBlocked()) return;
+        var id = el.getAttribute('data-id'), newRole = el.value;
+        mutate(function(st){ var w2=workerById2(st,id); if(w2) w2.rol = newRole; });
+      };
     });
     root.querySelectorAll('[data-photo-input]').forEach(function(el){
       el.onchange = function(){
@@ -1573,6 +1653,21 @@
       return;
     }
     if(action==='archive-tapa'){ archiveAndNotify(el.getAttribute('data-tapa')); return; }
+    if(action==='toggle-tarea'){
+      var tarId = el.getAttribute('data-id');
+      mutate(function(st){
+        st.tareas = st.tareas || [];
+        var x = st.tareas.filter(function(y){return y.id===tarId;})[0];
+        if(x){ x.hecha = !x.hecha; x.completadoEn = x.hecha ? nowISO() : null; }
+      });
+      return;
+    }
+    if(action==='delete-tarea'){
+      var tarDelId = el.getAttribute('data-id');
+      if(!confirm(tr('confirm.deleteTarea'))) return;
+      mutate(function(st){ st.tareas = (st.tareas||[]).filter(function(y){return y.id!==tarDelId;}); });
+      return;
+    }
     if(action==='delete-cliente'){
       var delClienteId = el.getAttribute('data-cliente');
       if(!confirm(tr('confirm.deleteCliente'))) return;
@@ -1647,12 +1742,22 @@
             espesor:b.espesor||'2cm', backsplash: !!b.backsplash, backsplashMedida:'', perfil:b.perfil||'', sink: !!b.sink, sinkTipo: b.sink? (b.sinkTipo||''):'',
             huecos: parseInt(b.huecos||0,10)||0,
             fechaTemplado:b.fechaTemplado||'', fechaInicioFabricacion:b.fechaFabricacion||'', fechaInstalacion:b.fecha||'', instaladorId:b.instalador||null,
-            notas:b.notas||'', medidasFinales:'', creadoEn:nowISO(), etapas:newTapaEtapas()
+            notas:b.notas||'', creadoEn:nowISO(), etapas:newTapaEtapas()
           });
         });
       });
       newClienteTapas=[{}];
       adminTab='panel'; route={name:'admin',params:{}}; render();
+      return;
+    }
+    if(kind==='nueva-tarea'){
+      var taTitulo = fd.get('titulo'), taTrabajador = fd.get('trabajadorId'), taFecha = fd.get('fecha');
+      if(!taTitulo || !taTrabajador){ alert(tr('alert.taskFields')); return; }
+      mutate(function(st){
+        st.tareas = st.tareas || [];
+        st.tareas.push({ id:uid('ta'), titulo:taTitulo, trabajadorId:taTrabajador, fecha:taFecha||todayISO(), hecha:false, creadoPor:currentWorker().nombre, creadoEn:nowISO(), completadoEn:null });
+      });
+      formEl.reset();
       return;
     }
     if(kind==='editar-tapa'){
@@ -1673,7 +1778,6 @@
         t.sink = !!fd.get('sink');
         t.sinkTipo = t.sink ? (fd.get('sinkTipo') || '') : '';
         t.huecos = parseInt(fd.get('huecos') || 0, 10) || 0;
-        t.medidasFinales = fd.get('medidasFinales') || '';
         t.fechaTemplado = fd.get('fechaTemplado') || '';
         t.fechaInicioFabricacion = fd.get('fechaFabricacion') || '';
         t.fechaInstalacion = fd.get('fecha') || t.fechaInstalacion;
@@ -1731,12 +1835,10 @@
 
   function applyStageExtras(t, stage, fd){
     var comentario = fd.get('comentario');
-    var medidas = fd.get('medidasFinales');
     var bsMedida = fd.get('backsplashMedida');
     var matSerial = fd.get('materialSerial');
     var matUbicacion = fd.get('materialUbicacion');
     if(comentario && comentario.trim()) t.etapas[stage].comentarios.push({autor:currentWorker().nombre, texto:comentario.trim(), fecha:nowISO()});
-    if(medidas!==null && medidas!==undefined && medidas.trim()) t.medidasFinales = medidas.trim();
     if(bsMedida!==null && bsMedida!==undefined && bsMedida.trim()) t.backsplashMedida = bsMedida.trim();
     if(matSerial!==null && matSerial!==undefined && matSerial.trim()) t.material.serial = matSerial.trim();
     if(matUbicacion!==null && matUbicacion!==undefined && matUbicacion.trim()) t.material.ubicacion = matUbicacion.trim();
