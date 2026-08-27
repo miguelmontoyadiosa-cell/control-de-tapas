@@ -32,7 +32,7 @@ interface Etapa { label?: string; estado?: string; responsable?: string; inicio?
 interface Tapa {
   etiqueta?: string; ambiente?: string; material?: string; materialSerial?: string; materialUbicacion?: string;
   espesor?: string; backsplash?: boolean; backsplashMedida?: string; perfil?: string; sink?: string; huecos?: number;
-  medidasFinales?: string; fechaTemplado?: string; fechaInicioFabricacion?: string; fechaInstalacion?: string;
+  fechaTemplado?: string; fechaInicioFabricacion?: string; fechaInstalacion?: string;
   instalador?: string; notas?: string; etapas?: Etapa[];
 }
 interface Cliente { nombre?: string; telefono?: string; direccion?: string; }
@@ -72,7 +72,6 @@ export default async (req: Request, context: Context) => {
   html += row("Edge profile", t.perfil);
   html += row("Sink", t.sink);
   html += row("Faucet holes", t.huecos);
-  html += row("Final measurements", t.medidasFinales);
   html += row("Template date", t.fechaTemplado);
   html += row("Fabrication start date", t.fechaInicioFabricacion);
   html += row("Installation date", t.fechaInstalacion);
