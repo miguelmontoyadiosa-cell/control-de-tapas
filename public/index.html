@@ -742,16 +742,27 @@
   /* pick up changes saved from other devices */
   var POLL_MS = 18000;
   function pollState(){
-    if(!initialLoadDone || pendingSave || saveInFlight || isFieldFocused()) return;
-    fetch(STATE_API).then(function(r){ return r.json(); }).then(function(doc){
+    if(!initialLoadDone || pendingSave || saveInFlight || isFieldFocused() || document.hidden) return;
+    /* Cheap check first: ask only for the version number (excludes clientes/
+       tapas/fotos entirely), so a poll where nothing changed costs almost no
+       bandwidth. Only fetch the full document — photos included — when the
+       version actually moved. */
+    fetch(STATE_API + '?versionOnly=1').then(function(r){ return r.json(); }).then(function(doc){
       if(doc && typeof doc.version==='number' && doc.version!==serverVersion){
-        state = normalizeState(doc.state || freshState());
-        serverVersion = doc.version;
-        render();
+        return fetch(STATE_API).then(function(r2){ return r2.json(); }).then(function(fullDoc){
+          state = normalizeState((fullDoc && fullDoc.state) || freshState());
+          serverVersion = (fullDoc && typeof fullDoc.version==='number') ? fullDoc.version : serverVersion;
+          render();
+        });
       }
-      setSaveStatus('ok');
-    }).catch(function(){ setSaveStatus('err'); });
+    }).then(function(){ setSaveStatus('ok'); }).catch(function(){ setSaveStatus('err'); });
   }
+  /* Pause entirely while the app is backgrounded/locked (no point spending
+     credits polling a screen nobody is looking at), and catch up immediately
+     the moment it's foregrounded again rather than waiting up to POLL_MS. */
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden) pollState();
+  });
 
   function mutate(fn){
     fn(state);
