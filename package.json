@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@netlify/blobs": "^8",
-    "@netlify/functions": "^3"
+    "@netlify/functions": "^3",
+    "web-push": "^3"
   }
 }
