@@ -35,6 +35,7 @@ interface Tapa {
   fechaTemplado?: string; fechaInicioFabricacion?: string; fechaInstalacion?: string;
   instalador?: string; notas?: string; etapas?: Etapa[];
   sobranteMaterial?: string; sobranteCantidad?: string; sobranteUbicacion?: string;
+  sobrantes?: { cantidad?: string; ubicacion?: string }[];
   porDibujo?: boolean;
   materialHistorial?: { tipo?: string; color?: string; serial?: string; ubicacion?: string; motivo?: string; fecha?: string; autor?: string }[];
 }
@@ -82,7 +83,12 @@ export default async (req: Request, context: Context) => {
   html += row("Edge profile", t.perfil);
   html += row("Sink", t.sink);
   html += row("Faucet holes", t.huecos);
-  html += row("Leftover material", t.sobranteMaterial === "si" ? `Yes — ${t.sobranteCantidad || "amount not on file"} — stored at ${t.sobranteUbicacion || "location not on file"}` : "");
+  if (t.sobranteMaterial === "si") {
+    const pieces = t.sobrantes && t.sobrantes.length
+      ? t.sobrantes.map((s) => `${s.cantidad || "amount not on file"} — stored at ${s.ubicacion || "location not on file"}`).join("; ")
+      : `${t.sobranteCantidad || "amount not on file"} — stored at ${t.sobranteUbicacion || "location not on file"}`;
+    html += row("Leftover material", pieces);
+  }
   html += row("Template date", t.fechaTemplado);
   html += row("Fabrication start date", t.fechaInicioFabricacion);
   html += row("Installation date", t.fechaInstalacion);
