@@ -338,8 +338,9 @@
       'clientes.empty':'Aún no hay clientes. Créalos desde «Nuevo cliente».',
       'clientes.eyebrow':'Directorio', 'clientes.title':'Clientes',
       'clientes.noPhone':'sin teléfono', 'clientes.noAddress':'sin dirección',
+      'clientes.searchPh':'Buscar por nombre, teléfono o dirección…', 'clientes.searchEmpty':'No hay clientes que coincidan con la búsqueda.',
       'clientes.fallaTag':'falla',
-      'clienteDet.back':'← Clientes', 'clienteDet.eyebrow':'Cliente',
+      'clienteDet.back':'← Clientes', 'clienteDet.eyebrow':'Cliente', 'clienteDet.addTapa':'+ Agregar tapa a este cliente',
       'field.created':'Creado',
       'equipo.eyebrow':'Equipo', 'equipo.title':'Trabajadores',
       'equipo.thName':'Nombre', 'equipo.thRole':'Rol', 'equipo.thStatus':'Estado',
@@ -493,8 +494,9 @@
       'clientes.empty':'No clients yet. Create one from “New client”.',
       'clientes.eyebrow':'Directory', 'clientes.title':'Clients',
       'clientes.noPhone':'no phone', 'clientes.noAddress':'no address',
+      'clientes.searchPh':'Search by name, phone, or address…', 'clientes.searchEmpty':'No clients match your search.',
       'clientes.fallaTag':'issue',
-      'clienteDet.back':'← Clients', 'clienteDet.eyebrow':'Client',
+      'clienteDet.back':'← Clients', 'clienteDet.eyebrow':'Client', 'clienteDet.addTapa':'+ Add slab for this client',
       'field.created':'Created',
       'equipo.eyebrow':'Team', 'equipo.title':'Workers',
       'equipo.thName':'Name', 'equipo.thRole':'Role', 'equipo.thStatus':'Status',
@@ -1360,19 +1362,34 @@
     '</div>';
   }
 
+  var clientesSearchQuery = '';
   function adminClientes(){
     if(state.clientes.length===0) return emptyState('👤',tr('clientes.empty'));
+    var q = clientesSearchQuery.trim().toLowerCase();
+    var filtered = state.clientes.slice().sort(function(a,b){return b.creadoEn.localeCompare(a.creadoEn);});
+    if(q){
+      filtered = filtered.filter(function(c){
+        return (c.nombre||'').toLowerCase().indexOf(q)>=0 ||
+               (c.telefono||'').toLowerCase().indexOf(q)>=0 ||
+               (c.direccion||'').toLowerCase().indexOf(q)>=0;
+      });
+    }
     return '<div class="section-head"><div><span class="eyebrow">'+esc(tr('clientes.eyebrow'))+'</span><h2>'+esc(tr('clientes.title'))+'</h2></div></div>' +
-      '<div style="display:flex; flex-direction:column; gap:8px;">' + state.clientes.slice().sort(function(a,b){return b.creadoEn.localeCompare(a.creadoEn);}).map(function(c){
+      '<div style="margin-bottom:10px;">' +
+        '<input type="search" data-input="clientes-search" value="'+esc(clientesSearchQuery)+'" placeholder="'+esc(tr('clientes.searchPh'))+'" style="width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:10px; font-size:15px;">' +
+      '</div>' +
+      (filtered.length===0 ? emptyState('🔎', tr('clientes.searchEmpty')) :
+      '<div style="display:flex; flex-direction:column; gap:8px;">' + filtered.map(function(c){
         var tapas = tapasForCliente(c.id);
         var falla = tapas.some(tapaHasFalla);
         return '<div class="card" data-action="open-cliente" data-id="'+c.id+'" style="padding:14px 16px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:10px;">' +
           '<div><div style="font-weight:700;">'+esc(c.nombre)+(falla?' <span class="chip chip-con_falla" style="margin-left:6px;">'+esc(tr('clientes.fallaTag'))+'</span>':'')+'</div><div class="footnote">'+esc(c.telefono||tr('clientes.noPhone'))+' · '+esc(c.direccion||tr('clientes.noAddress'))+'</div></div>' +
           '<div class="footnote mono">'+tapas.length+' '+esc(unitSlab(tapas.length))+'</div>' +
         '</div>';
-      }).join('') + '</div>';
+      }).join('') + '</div>');
   }
 
+  var addingTapaClienteId = null;
   function clienteDetalle(clienteId){
     var c = clienteById(clienteId);
     if(!c) return emptyState('⚠️','—');
@@ -1384,6 +1401,18 @@
       '<div class="spec-grid card" style="padding:14px 16px;">' +
         specItem(tr('field.phone'), c.telefono||'—') + specItem(tr('field.address'), c.direccion||'—') + specItem(tr('field.created'), fmtDate(c.creadoEn.slice(0,10))) +
       '</div>' +
+      (addingTapaClienteId===c.id ?
+        '<form data-form="agregar-tapas-cliente" data-cliente="'+c.id+'" style="display:flex; flex-direction:column; gap:16px;">' +
+          '<div id="tapas-repeat-list" style="display:flex; flex-direction:column; gap:12px;">' + (newClienteTapas.length?newClienteTapas.map(tapaRepeatBlock).join(''):tapaRepeatBlock({},0)) + '</div>' +
+          '<button type="button" class="btn" data-action="add-tapa-block">'+esc(tr('nuevo.addTapa'))+'</button>' +
+          '<div class="btn-row" style="margin-top:6px;">' +
+            '<button class="btn btn-primary" type="submit">'+esc(tr('nuevo.save'))+'</button>' +
+            '<button type="button" class="btn btn-ghost" data-action="cancel-agregar-tapa">'+esc(tr('tapa.cancel'))+'</button>' +
+          '</div>' +
+        '</form>'
+        :
+        '<button class="btn btn-primary btn-sm" data-action="agregar-tapa-cliente" data-cliente="'+c.id+'" style="margin-bottom:4px;">'+esc(tr('clienteDet.addTapa'))+'</button>'
+      ) +
       '<div style="display:flex; flex-direction:column; gap:10px;">' + tapas.map(function(t){return tapaCard(t,true);}).join('') + '</div>';
   }
   function specItem(k,v){ return '<div><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div></div>'; }
@@ -1787,6 +1816,9 @@
     root.querySelectorAll('[data-input="admin-search"]').forEach(function(el){
       el.oninput = function(){ adminSearch = el.value; render(); var i=document.querySelector('[data-input="admin-search"]'); if(i){ i.focus(); i.setSelectionRange(i.value.length,i.value.length); } };
     });
+    root.querySelectorAll('[data-input="clientes-search"]').forEach(function(el){
+      el.oninput = function(){ clientesSearchQuery = el.value; render(); var i=document.querySelector('[data-input="clientes-search"]'); if(i){ i.focus(); i.setSelectionRange(i.value.length,i.value.length); } };
+    });
     root.querySelectorAll('[data-role-select]').forEach(function(el){
       el.onchange = function(){
         if(previewBlocked()) return;
@@ -1918,6 +1950,8 @@
       render(); window.scrollTo(0,0); return;
     }
     if(action==='open-cliente'){ adminTab='cliente-detalle'; route={name:'admin',params:{clienteId:el.getAttribute('data-id')}}; render(); return; }
+    if(action==='agregar-tapa-cliente'){ addingTapaClienteId = el.getAttribute('data-cliente'); newClienteTapas=[{}]; newTapaPlanoPhotos={}; render(); return; }
+    if(action==='cancel-agregar-tapa'){ addingTapaClienteId = null; newClienteTapas=[{}]; newTapaPlanoPhotos={}; render(); return; }
     if(action==='nav-home'){ route={name:'home',params:{}}; render(); return; }
     if(action==='add-tapa-block'){ readTapaBlocksFromDom(); newClienteTapas.push({}); render(); return; }
     if(action==='remove-tapa-block'){ var idx=parseInt(el.getAttribute('data-idx'),10); readTapaBlocksFromDom(); newClienteTapas.splice(idx,1); var reindexed={}; Object.keys(newTapaPlanoPhotos).forEach(function(k){ var ki=parseInt(k,10); if(ki<idx) reindexed[ki]=newTapaPlanoPhotos[k]; else if(ki>idx) reindexed[ki-1]=newTapaPlanoPhotos[k]; }); newTapaPlanoPhotos=reindexed; render(); return; }
@@ -2081,6 +2115,33 @@
       newClienteTapas=[{}];
       newTapaPlanoPhotos={};
       adminTab='panel'; route={name:'admin',params:{}}; render();
+      return;
+    }
+    if(kind==='agregar-tapas-cliente'){
+      readTapaBlocksFromDom();
+      var targetClienteId = formEl.getAttribute('data-cliente');
+      var blocks2 = newClienteTapas.slice();
+      mutate(function(st){
+        var cliente = st.clientes.filter(function(x){return x.id===targetClienteId;})[0];
+        if(!cliente) return;
+        var startCount = tapasForCliente(cliente.id).length;
+        blocks2.forEach(function(b, i){
+          st.tapas.push({
+            id:uid('t'), clienteId:cliente.id,
+            etiqueta:b.etiqueta || trf('nuevo.tapaEyebrow',{n:startCount+i+1}),
+            ambiente:b.ambiente||'', material:{tipo:b.materialTipo||'granito', color:b.materialColor||'', serial:'', ubicacion:''},
+            espesor:b.espesor||'2cm', backsplash: !!b.backsplash, backsplashMedida: b.backsplash ? (b.backsplashMedida||'') : '', perfil:b.perfil||'', sink: !!b.sink, sinkTipo: b.sink? (b.sinkTipo||''):'',
+            huecos: parseInt(b.huecos||0,10)||0,
+            fechaTemplado:b.fechaTemplado||'', fechaInicioFabricacion:b.fechaFabricacion||'', fechaInstalacion:b.fecha||'', instaladorId:b.instalador||null,
+            porDibujo: !!b.porDibujo, planoFoto: newTapaPlanoPhotos[i]||'',
+            notas:b.notas||'', creadoEn:nowISO(), etapas:newTapaEtapas()
+          });
+        });
+      });
+      newClienteTapas=[{}];
+      newTapaPlanoPhotos={};
+      addingTapaClienteId = null;
+      render();
       return;
     }
     if(kind==='nueva-tarea'){
