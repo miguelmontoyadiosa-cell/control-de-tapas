@@ -290,8 +290,10 @@
       'tab.panel':'Panel', 'tab.nuevo':'Nuevo cliente', 'tab.clientes':'Clientes', 'tab.equipo':'Equipo', 'tab.tareas':'Tareas',
       'tareas.eyebrow':'Tareas del día', 'tareas.title':'Tareas asignadas', 'tareas.addLegend':'Agregar tarea',
       'field.taskTitle':'Tarea', 'field.taskTitlePh':'Ej. Limpiar la bodega de material',
-      'field.taskAssignedTo':'Asignar a', 'field.taskDate':'Fecha', 'field.chooseWorker':'— Selecciona un trabajador —',
-      'tareas.add':'Agregar tarea', 'tareas.empty':'No hay tareas agregadas todavía.',
+      'field.taskAssignedTo':'Asignar a', 'field.taskDate':'Fecha', 'field.taskTime':'Hora (opcional)', 'field.chooseWorker':'— Selecciona un trabajador —',
+      'tareas.add':'Agregar tarea', 'tareas.empty':'No hay tareas agregadas todavía.', 'tareas.emptyRevisar':'No hay tareas completadas por revisar.',
+      'tareas.pendientesSection':'Pendientes', 'tareas.porRevisarSection':'Completadas — por revisar', 'tareas.review':'Revisar',
+      'panel.myTasks':'Mis tareas asignadas',
       'tareas.thTask':'Tarea', 'tareas.thAssigned':'Asignada a', 'tareas.thDate':'Fecha', 'tareas.thStatus':'Estado',
       'tareas.done':'Hecha', 'tareas.pending':'Pendiente', 'tareas.markDone':'Marcar hecha', 'tareas.markUndone':'Reabrir',
       'tareas.delete':'Eliminar', 'confirm.deleteTarea':'¿Eliminar esta tarea?',
@@ -317,6 +319,9 @@
       'field.sink':'Lleva sink', 'field.sinkType':'Tipo de sink',
       'field.faucetHoles':'Huecos para llaves',
       'field.templadoDate':'Fecha de templado', 'field.fabricacionDate':'Fecha de inicio de fabricación',
+      'field.porDibujo':'Por dibujo (sin templado en sitio)', 'field.planoAttach':'Adjuntar plano', 'field.planoDraw':'Dibujar',
+      'spec.porDibujo':'Por dibujo — sin templado en sitio',
+      'draw.title':'Dibujar plano', 'draw.clear':'Borrar', 'draw.cancel':'Cancelar', 'draw.save':'Guardar',
       'field.installDate':'Fecha de instalación', 'field.installer':'Instalador asignado',
       'field.installerLater':'— Definir después —',
       'field.materialSerial':'Serial del material', 'field.materialSerialPh':'Ej. LOTE-4521',
@@ -437,8 +442,10 @@
       'tab.panel':'Board', 'tab.nuevo':'New client', 'tab.clientes':'Clients', 'tab.equipo':'Team', 'tab.tareas':'Tasks',
       'tareas.eyebrow':'Daily tasks', 'tareas.title':'Assigned tasks', 'tareas.addLegend':'Add task',
       'field.taskTitle':'Task', 'field.taskTitlePh':'E.g. Clean the material warehouse',
-      'field.taskAssignedTo':'Assign to', 'field.taskDate':'Date', 'field.chooseWorker':'— Choose a worker —',
-      'tareas.add':'Add task', 'tareas.empty':'No tasks added yet.',
+      'field.taskAssignedTo':'Assign to', 'field.taskDate':'Date', 'field.taskTime':'Time (optional)', 'field.chooseWorker':'— Choose a worker —',
+      'tareas.add':'Add task', 'tareas.empty':'No tasks added yet.', 'tareas.emptyRevisar':'No completed tasks to review.',
+      'tareas.pendientesSection':'Pending', 'tareas.porRevisarSection':'Completed — to review', 'tareas.review':'Review',
+      'panel.myTasks':'My assigned tasks',
       'tareas.thTask':'Task', 'tareas.thAssigned':'Assigned to', 'tareas.thDate':'Date', 'tareas.thStatus':'Status',
       'tareas.done':'Done', 'tareas.pending':'Pending', 'tareas.markDone':'Mark done', 'tareas.markUndone':'Reopen',
       'tareas.delete':'Delete', 'confirm.deleteTarea':'Delete this task?',
@@ -464,6 +471,9 @@
       'field.sink':'Has sink', 'field.sinkType':'Sink type',
       'field.faucetHoles':'Faucet holes',
       'field.templadoDate':'Template date', 'field.fabricacionDate':'Fabrication start date',
+      'field.porDibujo':'By drawing (no on-site template)', 'field.planoAttach':'Attach drawing', 'field.planoDraw':'Draw',
+      'spec.porDibujo':'By drawing — no on-site template',
+      'draw.title':'Draw the layout', 'draw.clear':'Clear', 'draw.cancel':'Cancel', 'draw.save':'Save',
       'field.installDate':'Installation date', 'field.installer':'Assigned installer',
       'field.installerLater':'— Decide later —',
       'field.materialSerial':'Material serial', 'field.materialSerialPh':'E.g. LOT-4521',
@@ -934,6 +944,7 @@
         fechaInstalacion: t.fechaInstalacion||'',
         instalador: instalador?instalador.nombre:'',
         notas: t.notas||'',
+        porDibujo: !!t.porDibujo,
         sobranteMaterial: t.sobranteMaterial||'',
         sobranteCantidad: t.sobranteCantidad||'',
         sobranteUbicacion: t.sobranteUbicacion||'',
@@ -1219,7 +1230,15 @@
     }
     list.sort(function(a,b){ var af=tapaHasFalla(a)?0:1, bf=tapaHasFalla(b)?0:1; if(af!==bf) return af-bf; return (a.fechaInstalacion||'9999').localeCompare(b.fechaInstalacion||'9999'); });
 
+    var w = currentWorker();
+    var misTareas = allTareas().filter(function(x){ return x.trabajadorId===w.id && !x.hecha; })
+      .sort(function(a,b){ return (a.fecha||'9999').localeCompare(b.fecha||'9999'); });
+
     return '' +
+      (misTareas.length ?
+        '<div class="section-head"><div><span class="eyebrow">'+esc(roleLabel(w.rol))+'</span><h2>'+esc(tr('panel.myTasks'))+'</h2></div></div>' +
+        '<div style="display:flex; flex-direction:column; gap:10px; margin-bottom:8px;">' + misTareas.map(function(x){ return workerTareaItem(x,false); }).join('') + '</div>'
+        : '') +
       '<div class="stat-row">' +
         stat(tapasActivas.length,tr('stat.activas')) +
         stat(conFalla.length,tr('stat.falla'), conFalla.length>0?'danger':'') +
@@ -1287,6 +1306,7 @@
       '</form>';
   }
   var newClienteTapas = [{}];
+  var newTapaPlanoPhotos = {};
   function tapaRepeatBlock(v, idx){
     v = v||{};
     return '<div class="tapa-repeat" data-tapa-idx="'+idx+'">' +
@@ -1318,6 +1338,14 @@
         field(tr('field.fabricacionDate'),'date','t'+idx+'_fechaFabricacion','',{value:v.fechaFabricacion}) +
         field(tr('field.installDate'),'date','t'+idx+'_fecha','',{value:v.fecha}) +
       '</div>' +
+      '<div class="grid2" style="align-items:center;">' +
+        '<label class="check-row"><input type="checkbox" name="t'+idx+'_porDibujo" data-por-dibujo data-idx="'+idx+'" '+(v.porDibujo?'checked':'')+'> '+esc(tr('field.porDibujo'))+'</label>' +
+        '<div class="btn-row" style="align-self:flex-start;">' +
+          '<label class="btn btn-sm" style="cursor:pointer;">'+iconCamera()+' '+esc(tr('field.planoAttach'))+'<input type="file" accept="image/*" capture="environment" data-plano-input data-idx="'+idx+'" style="display:none;"></label>' +
+          '<button type="button" class="btn btn-sm" data-action="open-draw" data-target="new" data-idx="'+idx+'">✏️ '+esc(tr('field.planoDraw'))+'</button>' +
+        '</div>' +
+      '</div>' +
+      '<div id="plano-preview-'+idx+'">'+(newTapaPlanoPhotos[idx]?'<img class="photo-thumb" src="'+newTapaPlanoPhotos[idx]+'">':'')+'</div>' +
       '<div class="grid2">' +
         selectField(tr('field.installer'),'t'+idx+'_instalador', [{value:'',label:tr('field.installerLater')}].concat(workersByRole('instalador').map(function(w){return {value:w.id,label:w.nombre};})), v.instalador) +
       '</div>' +
@@ -1354,35 +1382,43 @@
   function specItem(k,v){ return '<div><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div></div>'; }
 
   function adminTareas(){
-    var list = allTareas().slice().sort(function(a,b){
-      var ad=a.hecha?1:0, bd=b.hecha?1:0;
-      if(ad!==bd) return ad-bd;
-      return (a.fecha||'9999').localeCompare(b.fecha||'9999');
-    });
+    var pendientes = allTareas().filter(function(x){ return !x.hecha; }).sort(function(a,b){ return (a.fecha||'9999').localeCompare(b.fecha||'9999'); });
+    var porRevisar = allTareas().filter(function(x){ return !!x.hecha; }).sort(function(a,b){ return (b.completadoEn||'').localeCompare(a.completadoEn||''); });
     var workerOpts = [{value:'', label:tr('field.chooseWorker')}].concat(activeWorkers()
       .map(function(w){ return {value:w.id, label:w.nombre+' — '+roleLabel(w.rol)}; }));
+    function tareasTable(list, isRevisar){
+      if(list.length===0) return emptyState('🗒️', isRevisar?tr('tareas.emptyRevisar'):tr('tareas.empty'));
+      return '<div class="card" style="overflow-x:auto;"><table class="roster"><thead><tr>' +
+          '<th>'+esc(tr('tareas.thTask'))+'</th><th>'+esc(tr('tareas.thAssigned'))+'</th><th>'+esc(tr('tareas.thDate'))+'</th><th></th>' +
+        '</tr></thead><tbody>' + list.map(function(x){
+          var w = workerById(x.trabajadorId);
+          return '<tr><td>'+esc(x.titulo)+'</td><td>'+esc(w?w.nombre+' — '+roleLabel(w.rol):'—')+'</td><td>'+(x.fecha?fmtDate(x.fecha):'—')+(x.hora?' · '+esc(x.hora):'')+'</td>' +
+            '<td style="text-align:right; white-space:nowrap;">' +
+              (isRevisar ?
+                ('<button class="btn btn-sm btn-ghost" data-action="toggle-tarea" data-id="'+x.id+'">'+esc(tr('tareas.markUndone'))+'</button> ' +
+                 '<button class="btn btn-sm btn-primary" data-action="delete-tarea" data-id="'+x.id+'">'+esc(tr('tareas.review'))+'</button>')
+                :
+                ('<button class="btn btn-sm btn-ghost" data-action="toggle-tarea" data-id="'+x.id+'">'+esc(tr('tareas.markDone'))+'</button> ' +
+                 '<button class="btn btn-sm btn-danger" data-action="delete-tarea" data-id="'+x.id+'">'+esc(tr('tareas.delete'))+'</button>')
+              ) +
+            '</td></tr>';
+        }).join('') + '</tbody></table></div>';
+    }
     return '<div class="section-head"><div><span class="eyebrow">'+esc(tr('tareas.eyebrow'))+'</span><h2>'+esc(tr('tareas.title'))+'</h2></div></div>' +
       '<fieldset><legend>'+esc(tr('tareas.addLegend'))+'</legend>' +
       '<form data-form="nueva-tarea" style="display:flex; flex-direction:column; gap:12px;">' +
         field(tr('field.taskTitle'),'text','titulo',tr('field.taskTitlePh'),{required:true}) +
-        '<div class="grid2">' +
+        '<div class="grid3">' +
           selectField(tr('field.taskAssignedTo'),'trabajadorId', workerOpts, null, {required:true}) +
           field(tr('field.taskDate'),'date','fecha','',{value:todayISO()}) +
+          field(tr('field.taskTime'),'time','hora','',{}) +
         '</div>' +
         '<button class="btn btn-primary" type="submit" style="align-self:flex-start;">'+esc(tr('tareas.add'))+'</button>' +
       '</form></fieldset>' +
-      (list.length===0 ? emptyState('🗒️',tr('tareas.empty')) :
-        '<div class="card" style="overflow-x:auto;"><table class="roster"><thead><tr>' +
-          '<th>'+esc(tr('tareas.thTask'))+'</th><th>'+esc(tr('tareas.thAssigned'))+'</th><th>'+esc(tr('tareas.thDate'))+'</th><th>'+esc(tr('tareas.thStatus'))+'</th><th></th>' +
-        '</tr></thead><tbody>' + list.map(function(x){
-          var w = workerById(x.trabajadorId);
-          return '<tr><td>'+esc(x.titulo)+'</td><td>'+esc(w?w.nombre+' — '+roleLabel(w.rol):'—')+'</td><td>'+(x.fecha?fmtDate(x.fecha):'—')+'</td>' +
-            '<td>'+(x.hecha?'<span class="chip chip-completado">'+esc(tr('tareas.done'))+'</span>':'<span class="chip chip-pendiente">'+esc(tr('tareas.pending'))+'</span>')+'</td>' +
-            '<td style="text-align:right; white-space:nowrap;">' +
-              '<button class="btn btn-sm btn-ghost" data-action="toggle-tarea" data-id="'+x.id+'">'+(x.hecha?esc(tr('tareas.markUndone')):esc(tr('tareas.markDone')))+'</button> ' +
-              '<button class="btn btn-sm btn-danger" data-action="delete-tarea" data-id="'+x.id+'">'+esc(tr('tareas.delete'))+'</button>' +
-            '</td></tr>';
-        }).join('') + '</tbody></table></div>');
+      '<div class="eyebrow" style="margin-top:6px;">'+esc(tr('tareas.pendientesSection'))+'</div>' +
+      tareasTable(pendientes, false) +
+      '<div class="eyebrow" style="margin-top:16px;">'+esc(tr('tareas.porRevisarSection'))+'</div>' +
+      tareasTable(porRevisar, true);
   }
 
   function adminEquipo(){
@@ -1434,7 +1470,7 @@
   function workerTareaItem(x,isPreview){
     var overdue = x.fecha && daysUntil(x.fecha)<0 && !x.hecha;
     return '<div class="task-item'+(x.hecha?'':'')+'">' +
-      '<div class="top"><div><div class="cliente">'+esc(x.titulo)+'</div>'+(x.fecha?('<div class="sub"'+(overdue?' style="color:var(--danger); font-weight:600;"':'')+'>'+fmtDate(x.fecha)+dateRelativeSuffix(x.fecha)+'</div>'):'')+'</div>' +
+      '<div class="top"><div><div class="cliente">'+esc(x.titulo)+'</div>'+(x.fecha?('<div class="sub"'+(overdue?' style="color:var(--danger); font-weight:600;"':'')+'>'+fmtDate(x.fecha)+(x.hora?' · '+esc(x.hora):'')+dateRelativeSuffix(x.fecha)+'</div>'):'')+'</div>' +
       '<span class="chip chip-'+(x.hecha?'completado':'pendiente')+'">'+(x.hecha?esc(tr('tareas.done')):esc(tr('tareas.pending')))+'</span></div>' +
       (isPreview ? '' : '<div class="btn-row" style="margin-top:8px;"><button class="btn btn-sm" type="button" data-action="toggle-tarea" data-id="'+x.id+'">'+(x.hecha?esc(tr('tareas.markUndone')):esc(tr('tareas.markDone')))+'</button></div>') +
     '</div>';
@@ -1486,6 +1522,14 @@
         field(tr('field.fabricacionDate'),'date','fechaFabricacion','',{value:t.fechaInicioFabricacion}) +
         field(tr('field.installDate'),'date','fecha','',{value:t.fechaInstalacion}) +
       '</div>' +
+      '<div class="grid2" style="align-items:center;">' +
+        '<label class="check-row"><input type="checkbox" name="porDibujo" '+(t.porDibujo?'checked':'')+'> '+esc(tr('field.porDibujo'))+'</label>' +
+        '<div class="btn-row" style="align-self:flex-start;">' +
+          '<label class="btn btn-sm" style="cursor:pointer;">'+iconCamera()+' '+esc(tr('field.planoAttach'))+'<input type="file" accept="image/*" capture="environment" data-plano-input-edit style="display:none;"></label>' +
+          '<button type="button" class="btn btn-sm" data-action="open-draw" data-target="edit">✏️ '+esc(tr('field.planoDraw'))+'</button>' +
+        '</div>' +
+      '</div>' +
+      '<div id="plano-preview-edit">'+(t.planoFoto?'<img class="photo-thumb" src="'+t.planoFoto+'">':'')+'</div>' +
       selectField(tr('field.installer'),'instalador', [{value:'',label:tr('field.installerLater')}].concat(workersByRole('instalador').map(function(w){return {value:w.id,label:w.nombre};})), t.instaladorId) +
       textareaField(tr('field.notes'),'notas',tr('field.notesPh'), t.notas) +
       '<fieldset><legend>'+esc(tr('corte.sobranteLegend'))+'</legend><div style="display:flex; flex-direction:column; gap:10px;">' +
@@ -1533,6 +1577,9 @@
           '<div class="banner banner-danger">'+iconAlert()+' '+esc(tr('archive.error'))+
             (canEdit ? ' <button class="btn btn-sm" data-action="archive-tapa" data-tapa="'+t.id+'">'+esc(tr('archive.retry'))+'</button>' : '') +
           '</div>' : '') +
+        (t.porDibujo ? '<div class="banner banner-info">📐 '+esc(tr('spec.porDibujo'))+
+          (t.planoFoto ? ' <img class="photo-thumb" data-action="view-plano" data-tapa="'+t.id+'" style="cursor:pointer; vertical-align:middle; margin-left:8px;" src="'+t.planoFoto+'">' : '') +
+        '</div>' : '') +
         stepper(t) +
       '</div>' +
       '<div class="card" style="padding:14px 16px;"><div class="spec-grid">' +
@@ -1657,10 +1704,51 @@
       var t = state.tapas.filter(function(x){return x.id===overlayNode.params.tapaId;})[0];
       var foto = t.etapas[overlayNode.params.stage].fotos[overlayNode.params.idx];
       root.innerHTML = '<div class="lightbox" data-action="close-overlay-bg"><img src="'+(foto?foto.dataUrl:'')+'"></div>';
+    } else if(overlayNode.name==='planofoto'){
+      var tp = state.tapas.filter(function(x){return x.id===overlayNode.params.tapaId;})[0];
+      root.innerHTML = '<div class="lightbox" data-action="close-overlay-bg"><img src="'+(tp&&tp.planoFoto?tp.planoFoto:'')+'"></div>';
+    } else if(overlayNode.name==='draw'){
+      root.innerHTML = '<div class="overlay" data-action="close-overlay-bg"><div class="sheet">' +
+        '<h3>'+esc(tr('draw.title'))+'</h3>' +
+        '<canvas id="draw-canvas" style="width:100%; height:320px; touch-action:none; background:#fff; border:1px solid var(--border); border-radius:8px; display:block;"></canvas>' +
+        '<div class="btn-row" style="margin-top:10px;">' +
+          '<button type="button" class="btn" data-action="draw-clear">'+esc(tr('draw.clear'))+'</button>' +
+          '<button type="button" class="btn btn-ghost" data-action="close-overlay">'+esc(tr('draw.cancel'))+'</button>' +
+          '<button type="button" class="btn btn-primary" data-action="draw-save">'+esc(tr('draw.save'))+'</button>' +
+        '</div>' +
+      '</div></div>';
     }
     bindGlobalHandlers(root);
+    if(overlayNode && overlayNode.name==='draw') initDrawCanvas();
+  }
+  var drawCtx = null;
+  function initDrawCanvas(){
+    var canvas = document.getElementById('draw-canvas');
+    if(!canvas) return;
+    var rect = canvas.getBoundingClientRect();
+    var ratio = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.round(rect.width * ratio));
+    canvas.height = Math.max(1, Math.round(320 * ratio));
+    drawCtx = canvas.getContext('2d');
+    drawCtx.scale(ratio, ratio);
+    drawCtx.lineWidth = 3;
+    drawCtx.lineCap = 'round';
+    drawCtx.lineJoin = 'round';
+    drawCtx.strokeStyle = '#1a1a1a';
+    var drawing = false, lastX = 0, lastY = 0;
+    function pos(ev){
+      var r = canvas.getBoundingClientRect();
+      var p = (ev.touches && ev.touches[0]) ? ev.touches[0] : ev;
+      return { x: p.clientX - r.left, y: p.clientY - r.top };
+    }
+    function start(ev){ ev.preventDefault(); drawing = true; var p = pos(ev); lastX = p.x; lastY = p.y; }
+    function move(ev){ if(!drawing) return; ev.preventDefault(); var p = pos(ev); drawCtx.beginPath(); drawCtx.moveTo(lastX, lastY); drawCtx.lineTo(p.x, p.y); drawCtx.stroke(); lastX = p.x; lastY = p.y; }
+    function end(){ drawing = false; }
+    canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = end; canvas.ontouchcancel = end;
+    canvas.onmousedown = start; canvas.onmousemove = move; canvas.onmouseup = end; canvas.onmouseleave = end;
   }
   var fallaPhotoData = null;
+  var editPlanoPhotoData = null;
 
   /* ============ event binding ============ */
   function bindGlobalHandlers(root){
@@ -1716,6 +1804,33 @@
           fallaPhotoData = dataUrl;
           var prev = document.getElementById('falla-photo-preview');
           if(prev) prev.innerHTML = '<img class="photo-thumb" src="'+dataUrl+'">';
+        }).catch(function(){ alert(tr('alert.photoFail')); });
+      };
+    });
+    root.querySelectorAll('[data-plano-input]').forEach(function(el){
+      el.onchange = function(){
+        if(previewBlocked()){ el.value=''; return; }
+        var file = el.files[0]; if(!file) return;
+        var idx = el.getAttribute('data-idx');
+        compressImage(file).then(function(dataUrl){
+          newTapaPlanoPhotos[idx] = dataUrl;
+          var prev = document.getElementById('plano-preview-'+idx);
+          if(prev) prev.innerHTML = '<img class="photo-thumb" src="'+dataUrl+'">';
+          var chk = root.querySelector('[data-por-dibujo][data-idx="'+idx+'"]');
+          if(chk) chk.checked = true;
+        }).catch(function(){ alert(tr('alert.photoFail')); });
+      };
+    });
+    root.querySelectorAll('[data-plano-input-edit]').forEach(function(el){
+      el.onchange = function(){
+        if(previewBlocked()){ el.value=''; return; }
+        var file = el.files[0]; if(!file) return;
+        compressImage(file).then(function(dataUrl){
+          editPlanoPhotoData = dataUrl;
+          var prev = document.getElementById('plano-preview-edit');
+          if(prev) prev.innerHTML = '<img class="photo-thumb" src="'+dataUrl+'">';
+          var chk = root.querySelector('[name="porDibujo"]');
+          if(chk) chk.checked = true;
         }).catch(function(){ alert(tr('alert.photoFail')); });
       };
     });
@@ -1779,7 +1894,7 @@
     if(action==='open-cliente'){ adminTab='cliente-detalle'; route={name:'admin',params:{clienteId:el.getAttribute('data-id')}}; render(); return; }
     if(action==='nav-home'){ route={name:'home',params:{}}; render(); return; }
     if(action==='add-tapa-block'){ readTapaBlocksFromDom(); newClienteTapas.push({}); render(); return; }
-    if(action==='remove-tapa-block'){ var idx=parseInt(el.getAttribute('data-idx'),10); readTapaBlocksFromDom(); newClienteTapas.splice(idx,1); render(); return; }
+    if(action==='remove-tapa-block'){ var idx=parseInt(el.getAttribute('data-idx'),10); readTapaBlocksFromDom(); newClienteTapas.splice(idx,1); var reindexed={}; Object.keys(newTapaPlanoPhotos).forEach(function(k){ var ki=parseInt(k,10); if(ki<idx) reindexed[ki]=newTapaPlanoPhotos[k]; else if(ki>idx) reindexed[ki-1]=newTapaPlanoPhotos[k]; }); newTapaPlanoPhotos=reindexed; render(); return; }
     if(action==='reset-pin'){
       var id2 = el.getAttribute('data-id'); var np = prompt(tr('prompt.newPin'));
       if(np && /^[0-9]{4}$/.test(np)){ mutate(function(st){ workerById2(st,id2).pin=np; }); } else if(np!==null){ alert(tr('alert.pin4')); }
@@ -1805,7 +1920,32 @@
     if(action==='close-overlay'){ closeOverlay(); return; }
     if(action==='close-overlay-bg'){ if(!ev || el===ev.target){ closeOverlay(); } return; }
     if(action==='view-photo'){ openOverlay('photo',{tapaId:el.getAttribute('data-tapa'), stage:el.getAttribute('data-stage'), idx:parseInt(el.getAttribute('data-idx'),10)}); return; }
-    if(action==='edit-tapa'){ editingTapaId = el.getAttribute('data-tapa'); render(); return; }
+    if(action==='view-plano'){ openOverlay('planofoto',{tapaId:el.getAttribute('data-tapa')}); return; }
+    if(action==='open-draw'){ openOverlay('draw',{target:el.getAttribute('data-target'), idx:el.getAttribute('data-idx')}); return; }
+    if(action==='draw-clear'){ var dc=document.getElementById('draw-canvas'); if(dc && drawCtx) drawCtx.clearRect(0,0,dc.width,dc.height); return; }
+    if(action==='draw-save'){
+      var canvas = document.getElementById('draw-canvas');
+      if(canvas && overlayNode){
+        var dataUrl = canvas.toDataURL('image/png');
+        var target = overlayNode.params.target, dIdx = overlayNode.params.idx;
+        closeOverlay();
+        if(target==='new'){
+          newTapaPlanoPhotos[dIdx] = dataUrl;
+          var prevN = document.getElementById('plano-preview-'+dIdx);
+          if(prevN) prevN.innerHTML = '<img class="photo-thumb" src="'+dataUrl+'">';
+          var chkN = document.querySelector('[data-por-dibujo][data-idx="'+dIdx+'"]');
+          if(chkN) chkN.checked = true;
+        } else {
+          editPlanoPhotoData = dataUrl;
+          var prevE = document.getElementById('plano-preview-edit');
+          if(prevE) prevE.innerHTML = '<img class="photo-thumb" src="'+dataUrl+'">';
+          var chkE = document.querySelector('[name="porDibujo"]');
+          if(chkE) chkE.checked = true;
+        }
+      } else { closeOverlay(); }
+      return;
+    }
+    if(action==='edit-tapa'){ editingTapaId = el.getAttribute('data-tapa'); editPlanoPhotoData = null; render(); return; }
     if(action==='cancel-edit-tapa'){ editingTapaId = null; render(); return; }
     if(action==='delete-tapa'){
       var delId = el.getAttribute('data-tapa');
@@ -1864,7 +2004,7 @@
     blocks.forEach(function(b){
       var idx = b.getAttribute('data-tapa-idx');
       function g(n){ var f=b.querySelector('[name="t'+idx+'_'+n+'"]'); return f?(f.type==='checkbox'?f.checked:f.value):undefined; }
-      result.push({ etiqueta:g('etiqueta'), ambiente:g('ambiente'), materialTipo:g('materialTipo'), materialColor:g('materialColor'), espesor:g('espesor'), backsplash:g('backsplash'), backsplashMedida:g('backsplashMedida'), perfil:g('perfil'), sink:g('sink'), sinkTipo:g('sinkTipo'), huecos:g('huecos'), fechaTemplado:g('fechaTemplado'), fechaFabricacion:g('fechaFabricacion'), fecha:g('fecha'), instalador:g('instalador'), notas:g('notas') });
+      result.push({ etiqueta:g('etiqueta'), ambiente:g('ambiente'), materialTipo:g('materialTipo'), materialColor:g('materialColor'), espesor:g('espesor'), backsplash:g('backsplash'), backsplashMedida:g('backsplashMedida'), perfil:g('perfil'), sink:g('sink'), sinkTipo:g('sinkTipo'), huecos:g('huecos'), fechaTemplado:g('fechaTemplado'), fechaFabricacion:g('fechaFabricacion'), fecha:g('fecha'), instalador:g('instalador'), notas:g('notas'), porDibujo:g('porDibujo') });
     });
     newClienteTapas = result;
   }
@@ -1907,20 +2047,22 @@
             espesor:b.espesor||'2cm', backsplash: !!b.backsplash, backsplashMedida: b.backsplash ? (b.backsplashMedida||'') : '', perfil:b.perfil||'', sink: !!b.sink, sinkTipo: b.sink? (b.sinkTipo||''):'',
             huecos: parseInt(b.huecos||0,10)||0,
             fechaTemplado:b.fechaTemplado||'', fechaInicioFabricacion:b.fechaFabricacion||'', fechaInstalacion:b.fecha||'', instaladorId:b.instalador||null,
+            porDibujo: !!b.porDibujo, planoFoto: newTapaPlanoPhotos[i]||'',
             notas:b.notas||'', creadoEn:nowISO(), etapas:newTapaEtapas()
           });
         });
       });
       newClienteTapas=[{}];
+      newTapaPlanoPhotos={};
       adminTab='panel'; route={name:'admin',params:{}}; render();
       return;
     }
     if(kind==='nueva-tarea'){
-      var taTitulo = fd.get('titulo'), taTrabajador = fd.get('trabajadorId'), taFecha = fd.get('fecha');
+      var taTitulo = fd.get('titulo'), taTrabajador = fd.get('trabajadorId'), taFecha = fd.get('fecha'), taHora = fd.get('hora');
       if(!taTitulo || !taTrabajador){ alert(tr('alert.taskFields')); return; }
       mutate(function(st){
         st.tareas = st.tareas || [];
-        st.tareas.push({ id:uid('ta'), titulo:taTitulo, trabajadorId:taTrabajador, fecha:taFecha||todayISO(), hecha:false, creadoPor:currentWorker().nombre, creadoEn:nowISO(), completadoEn:null });
+        st.tareas.push({ id:uid('ta'), titulo:taTitulo, trabajadorId:taTrabajador, fecha:taFecha||todayISO(), hora:taHora||'', hecha:false, creadoPor:currentWorker().nombre, creadoEn:nowISO(), completadoEn:null });
       });
       notifyTareaAssigned({ titulo:taTitulo, trabajadorId:taTrabajador });
       formEl.reset();
@@ -1953,7 +2095,10 @@
         if(editSobrante!==null && editSobrante!==undefined) t.sobranteMaterial = editSobrante;
         t.sobranteCantidad = fd.get('sobranteCantidad') || '';
         t.sobranteUbicacion = fd.get('sobranteUbicacion') || '';
+        t.porDibujo = !!fd.get('porDibujo');
+        if(editPlanoPhotoData) t.planoFoto = editPlanoPhotoData;
       });
+      editPlanoPhotoData = null;
       editingTapaId = null;
       render();
       return;
