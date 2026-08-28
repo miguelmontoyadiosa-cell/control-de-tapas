@@ -35,6 +35,7 @@ interface Tapa {
   fechaTemplado?: string; fechaInicioFabricacion?: string; fechaInstalacion?: string;
   instalador?: string; notas?: string; etapas?: Etapa[];
   sobranteMaterial?: string; sobranteCantidad?: string; sobranteUbicacion?: string;
+  porDibujo?: boolean;
 }
 interface Cliente { nombre?: string; telefono?: string; direccion?: string; }
 
@@ -65,6 +66,7 @@ export default async (req: Request, context: Context) => {
   html += row("Phone", c.telefono);
   html += row("Address", c.direccion);
   html += row("Room / area", t.ambiente);
+  html += row("By drawing (no on-site template)", t.porDibujo ? "Yes" : "");
   html += row("Material", t.material);
   html += row("Material serial number", t.materialSerial);
   html += row("Material location (warehouse)", t.materialUbicacion);
