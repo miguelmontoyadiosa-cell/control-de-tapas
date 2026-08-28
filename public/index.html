@@ -326,6 +326,9 @@
       'field.installerLater':'— Definir después —',
       'field.materialSerial':'Serial del material', 'field.materialSerialPh':'Ej. LOTE-4521',
       'field.materialUbicacion':'Ubicación del material', 'field.materialUbicacionPh':'Ej. Bodega A, estante 3',
+      'material.reemplazoLegend':'Reemplazo de material', 'material.reemplazoCheck':'Se reemplazó el material por daño/error',
+      'material.reemplazoMotivo':'Motivo del reemplazo', 'material.reemplazoMotivoPh':'Ej. Rayado, quebrado, medida incorrecta',
+      'material.historialLegend':'Historial de material', 'material.historialSerial':'Serial: {s} · Ubicación: {u}', 'material.historialMotivo':'Motivo: {m}',
       'field.backsplashMedida':'Medida del backsplash', 'field.backsplashMedidaPh':'Ej. 4 in × 96 in',
       'task.scheduledFor':'Programado para:',
       'spec.materialSerial':'Serial del material', 'spec.materialUbicacion':'Ubicación del material',
@@ -478,6 +481,9 @@
       'field.installerLater':'— Decide later —',
       'field.materialSerial':'Material serial', 'field.materialSerialPh':'E.g. LOT-4521',
       'field.materialUbicacion':'Material location', 'field.materialUbicacionPh':'E.g. Warehouse A, shelf 3',
+      'material.reemplazoLegend':'Material replacement', 'material.reemplazoCheck':'Material was replaced due to damage/error',
+      'material.reemplazoMotivo':'Reason for replacement', 'material.reemplazoMotivoPh':'E.g. Scratched, cracked, wrong measurement',
+      'material.historialLegend':'Material history', 'material.historialSerial':'Serial: {s} · Location: {u}', 'material.historialMotivo':'Reason: {m}',
       'field.backsplashMedida':'Backsplash measurement', 'field.backsplashMedidaPh':'E.g. 4 in × 96 in',
       'task.scheduledFor':'Scheduled for:',
       'spec.materialSerial':'Material serial', 'spec.materialUbicacion':'Material location',
@@ -945,6 +951,7 @@
         instalador: instalador?instalador.nombre:'',
         notas: t.notas||'',
         porDibujo: !!t.porDibujo,
+        materialHistorial: t.materialHistorial || [],
         sobranteMaterial: t.sobranteMaterial||'',
         sobranteCantidad: t.sobranteCantidad||'',
         sobranteUbicacion: t.sobranteUbicacion||'',
@@ -1492,6 +1499,19 @@
   }
 
   /* ============ TAPA DETAIL (shared) ============ */
+  function materialHistorialBlock(t){
+    return '<fieldset><legend>'+esc(tr('material.historialLegend'))+'</legend>' +
+      '<div style="display:flex; flex-direction:column; gap:8px;">' +
+      t.materialHistorial.slice().reverse().map(function(h){
+        return '<div class="card" style="padding:8px 10px; font-size:13px;">' +
+          '<div style="font-weight:600;">'+esc(materialLabel(h.tipo))+(h.color?' — '+esc(h.color):'')+'</div>' +
+          '<div class="sub">'+esc(trf('material.historialSerial',{s:h.serial||'—', u:h.ubicacion||'—'}))+'</div>' +
+          (h.motivo ? '<div class="sub">'+esc(trf('material.historialMotivo',{m:h.motivo}))+'</div>' : '') +
+          '<div class="sub">'+fmtDateTime(h.fecha)+' · '+esc(h.autor||'')+'</div>' +
+        '</div>';
+      }).join('') +
+      '</div></fieldset>';
+  }
   function tapaEditForm(t){
     return '<form data-form="editar-tapa" data-tapa="'+t.id+'" class="card" style="padding:14px 16px; display:flex; flex-direction:column; gap:12px;">' +
       '<div class="grid2">' +
@@ -1507,6 +1527,11 @@
         field(tr('field.materialSerial'),'text','materialSerial',tr('field.materialSerialPh'),{value:t.material.serial}) +
         field(tr('field.materialUbicacion'),'text','materialUbicacion',tr('field.materialUbicacionPh'),{value:t.material.ubicacion}) +
       '</div>' +
+      '<fieldset><legend>'+esc(tr('material.reemplazoLegend'))+'</legend><div style="display:flex; flex-direction:column; gap:10px;">' +
+        '<label class="check-row"><input type="checkbox" name="materialReemplazado"> '+esc(tr('material.reemplazoCheck'))+'</label>' +
+        textareaField(tr('material.reemplazoMotivo'),'materialMotivo',tr('material.reemplazoMotivoPh')) +
+      '</div></fieldset>' +
+      (t.materialHistorial && t.materialHistorial.length ? materialHistorialBlock(t) : '') +
       '<div class="grid2">' +
         '<label class="check-row"><input type="checkbox" name="backsplash" '+(t.backsplash?'checked':'')+'> '+esc(tr('field.backsplash'))+'</label>' +
         selectField(tr('field.profile'),'perfil', keyOptions(PERFIL_KEYS, perfilLabel), t.perfil) +
@@ -1600,7 +1625,8 @@
         (t.sobranteMaterial ? specItem(tr('spec.sobranteMaterial'), t.sobranteMaterial==='si'?tr('spec.yes'):tr('spec.no')) : '') +
         (t.sobranteMaterial==='si' ? specItem(tr('spec.sobranteCantidad'), t.sobranteCantidad||'—') : '') +
         (t.sobranteMaterial==='si' ? specItem(tr('spec.sobranteUbicacion'), t.sobranteUbicacion||'—') : '') +
-      '</div>' + (t.notas?('<div style="padding:0 16px 14px; font-size:13px; color:var(--text-muted);"><b>'+esc(tr('spec.notes'))+'</b> '+esc(t.notas)+'</div>'):'') + '</div>' +
+      '</div>' +
+      (t.materialHistorial && t.materialHistorial.length ? materialHistorialBlock(t) : '') + (t.notas?('<div style="padding:0 16px 14px; font-size:13px; color:var(--text-muted);"><b>'+esc(tr('spec.notes'))+'</b> '+esc(t.notas)+'</div>'):'') + '</div>' +
       '<div class="timeline">' + STAGES.map(function(s,i){ return tlStage(t, s, i, w, isAdminView); }).join('') + '</div>'
     ;
   }
@@ -2075,10 +2101,21 @@
         if(!t) return;
         t.etiqueta = fd.get('etiqueta') || t.etiqueta;
         t.ambiente = fd.get('ambiente') || '';
-        t.material.tipo = fd.get('materialTipo') || t.material.tipo;
-        t.material.color = fd.get('materialColor') || '';
-        t.material.serial = fd.get('materialSerial') || '';
-        t.material.ubicacion = fd.get('materialUbicacion') || '';
+        var newMaterialTipo = fd.get('materialTipo') || t.material.tipo;
+        var newMaterialColor = fd.get('materialColor') || '';
+        var newMaterialSerial = fd.get('materialSerial') || '';
+        var newMaterialUbicacion = fd.get('materialUbicacion') || '';
+        if(fd.get('materialReemplazado')){
+          t.materialHistorial = t.materialHistorial || [];
+          t.materialHistorial.push({
+            tipo: t.material.tipo, color: t.material.color, serial: t.material.serial, ubicacion: t.material.ubicacion,
+            motivo: (fd.get('materialMotivo')||'').trim(), fecha: nowISO(), autor: currentWorker().nombre
+          });
+        }
+        t.material.tipo = newMaterialTipo;
+        t.material.color = newMaterialColor;
+        t.material.serial = newMaterialSerial;
+        t.material.ubicacion = newMaterialUbicacion;
         t.espesor = fd.get('espesor') || t.espesor;
         t.backsplash = !!fd.get('backsplash');
         t.backsplashMedida = t.backsplash ? (fd.get('backsplashMedida') || '') : '';
@@ -2214,7 +2251,11 @@
       var idx = STAGES.map(function(s){return s.key;}).indexOf(stage);
       for(var i=idx;i<STAGES.length;i++){
         var k = STAGES[i].key;
-        t.etapas[k] = {estado:'pendiente', encargadoId:null, inicio:null, fin:null, comentarios:t.etapas[k].comentarios, fotos:t.etapas[k].fotos};
+        // Photos are cleared on reopen: keeping the old QC photo would let
+        // someone re-complete the stage (e.g. re-cut with new material)
+        // without ever having to prove it with a fresh photo. Comments are
+        // kept as an audit trail of what happened and why it was reopened.
+        t.etapas[k] = {estado:'pendiente', encargadoId:null, inicio:null, fin:null, comentarios:t.etapas[k].comentarios, fotos:[]};
       }
     });
     var tapaAfterReopen = state.tapas.filter(function(x){return x.id===tapaId;})[0];
