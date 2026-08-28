@@ -414,7 +414,9 @@
       'corte.sobranteLegend':'Material sobrante', 'corte.si':'Sí', 'corte.no':'No',
       'corte.sobranteCantidad':'Cantidad sobrante', 'corte.sobranteCantidadPh':'Ej. 2 pies × 3 pies',
       'corte.sobranteUbicacion':'¿Dónde se guardó?', 'corte.sobranteUbicacionPh':'Ej. Estante B-3',
+      'corte.addPiece':'+ Agregar otra pieza sobrante',
       'spec.sobranteMaterial':'Material sobrante', 'spec.sobranteCantidad':'Cantidad sobrante', 'spec.sobranteUbicacion':'Ubicación del sobrante',
+      'spec.sobranteRow':'{c} · {u}',
       'stage.fabricacion.label':'Fabricación', 'stage.fabricacion.short':'Fabricación',
       'stage.pulido.label':'Pulido', 'stage.pulido.short':'Pulido',
       'stage.instalacion.label':'Instalación', 'stage.instalacion.short':'Instalación',
@@ -570,7 +572,9 @@
       'corte.sobranteLegend':'Leftover material', 'corte.si':'Yes', 'corte.no':'No',
       'corte.sobranteCantidad':'Leftover amount', 'corte.sobranteCantidadPh':'E.g. 2 ft × 3 ft',
       'corte.sobranteUbicacion':'Where was it stored?', 'corte.sobranteUbicacionPh':'E.g. Shelf B-3',
+      'corte.addPiece':'+ Add another leftover piece',
       'spec.sobranteMaterial':'Leftover material', 'spec.sobranteCantidad':'Leftover amount', 'spec.sobranteUbicacion':'Leftover location',
+      'spec.sobranteRow':'{c} · {u}',
       'stage.fabricacion.label':'Fabrication', 'stage.fabricacion.short':'Fabrication',
       'stage.pulido.label':'Polishing', 'stage.pulido.short':'Polishing',
       'stage.instalacion.label':'Installation', 'stage.instalacion.short':'Installation',
@@ -955,8 +959,7 @@
         porDibujo: !!t.porDibujo,
         materialHistorial: t.materialHistorial || [],
         sobranteMaterial: t.sobranteMaterial||'',
-        sobranteCantidad: t.sobranteCantidad||'',
-        sobranteUbicacion: t.sobranteUbicacion||'',
+        sobrantes: t.sobranteMaterial==='si' ? sobranteRows(t) : [],
         etapas: STAGES.map(function(s){
           var e = t.etapas[s.key];
           var w2 = e.encargadoId ? workerById(e.encargadoId) : null;
@@ -1416,6 +1419,52 @@
       '<div style="display:flex; flex-direction:column; gap:10px;">' + tapas.map(function(t){return tapaCard(t,true);}).join('') + '</div>';
   }
   function specItem(k,v){ return '<div><div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div></div>'; }
+  function sobranteRows(t){
+    if(t.sobrantes && t.sobrantes.length) return t.sobrantes.map(function(r){return {cantidad:r.cantidad||'', ubicacion:r.ubicacion||''};});
+    if(t.sobranteCantidad || t.sobranteUbicacion) return [{cantidad:t.sobranteCantidad||'', ubicacion:t.sobranteUbicacion||''}];
+    return [{cantidad:'',ubicacion:''}];
+  }
+  function sobranteRepeatBlock(rows, prefix, sobranteMaterialVal){
+    return '<fieldset><legend>'+esc(tr('corte.sobranteLegend'))+'</legend><div style="display:flex; flex-direction:column; gap:10px;">' +
+      radioRow('sobranteMaterial',[['si',tr('corte.si')],['no',tr('corte.no')]], sobranteMaterialVal) +
+      '<div style="display:flex; flex-direction:column; gap:8px;">' +
+        rows.map(function(r, i){
+          return '<div data-'+prefix+'-row="'+i+'" style="display:flex; gap:8px; align-items:flex-end;">' +
+            '<div class="grid2" style="flex:1;">' +
+              field(tr('corte.sobranteCantidad'),'text',prefix+'_cant_'+i,tr('corte.sobranteCantidadPh'),{value:r.cantidad}) +
+              field(tr('corte.sobranteUbicacion'),'text',prefix+'_ubic_'+i,tr('corte.sobranteUbicacionPh'),{value:r.ubicacion}) +
+            '</div>' +
+            (rows.length>1 ? '<button type="button" class="icon-btn rm" data-action="remove-'+prefix+'-row" data-idx="'+i+'" title="'+esc(tr('nuevo.remove'))+'">✕</button>' : '') +
+          '</div>';
+        }).join('') +
+      '</div>' +
+      '<button type="button" class="btn btn-sm" data-action="add-'+prefix+'-row" style="align-self:flex-start;">'+esc(tr('corte.addPiece'))+'</button>' +
+    '</div></fieldset>';
+  }
+  function readSobranteRowsFromDom(prefix){
+    var result = [];
+    document.querySelectorAll('[data-'+prefix+'-row]').forEach(function(rowEl){
+      var idx = rowEl.getAttribute('data-'+prefix+'-row');
+      var cant = rowEl.querySelector('[name="'+prefix+'_cant_'+idx+'"]');
+      var ubic = rowEl.querySelector('[name="'+prefix+'_ubic_'+idx+'"]');
+      result.push({ cantidad: cant?cant.value:'', ubicacion: ubic?ubic.value:'' });
+    });
+    return result.length ? result : [{cantidad:'',ubicacion:''}];
+  }
+  function collectSobrantesFromDom(prefix){
+    return readSobranteRowsFromDom(prefix).filter(function(r){ return (r.cantidad&&r.cantidad.trim()) || (r.ubicacion&&r.ubicacion.trim()); })
+      .map(function(r){ return {cantidad:r.cantidad.trim(), ubicacion:r.ubicacion.trim()}; });
+  }
+  function collectSobrantesFromFormData(fd, prefix){
+    var rows = [], i = 0;
+    while(fd.has(prefix+'_cant_'+i) || fd.has(prefix+'_ubic_'+i)){
+      var cant = (fd.get(prefix+'_cant_'+i)||'').trim();
+      var ubic = (fd.get(prefix+'_ubic_'+i)||'').trim();
+      if(cant || ubic) rows.push({cantidad:cant, ubicacion:ubic});
+      i++;
+    }
+    return rows;
+  }
 
   function adminTareas(){
     var pendientes = allTareas().filter(function(x){ return !x.hecha; }).sort(function(a,b){ return (a.fecha||'9999').localeCompare(b.fecha||'9999'); });
@@ -1586,13 +1635,7 @@
       '<div id="plano-preview-edit">'+(t.planoFoto?'<img class="photo-thumb" src="'+t.planoFoto+'">':'')+'</div>' +
       selectField(tr('field.installer'),'instalador', [{value:'',label:tr('field.installerLater')}].concat(workersByRole('instalador').map(function(w){return {value:w.id,label:w.nombre};})), t.instaladorId) +
       textareaField(tr('field.notes'),'notas',tr('field.notesPh'), t.notas) +
-      '<fieldset><legend>'+esc(tr('corte.sobranteLegend'))+'</legend><div style="display:flex; flex-direction:column; gap:10px;">' +
-        radioRow('sobranteMaterial',[['si',tr('corte.si')],['no',tr('corte.no')]]) +
-        '<div class="grid2">' +
-          field(tr('corte.sobranteCantidad'),'text','sobranteCantidad',tr('corte.sobranteCantidadPh'),{value:t.sobranteCantidad}) +
-          field(tr('corte.sobranteUbicacion'),'text','sobranteUbicacion',tr('corte.sobranteUbicacionPh'),{value:t.sobranteUbicacion}) +
-        '</div>' +
-      '</div></fieldset>' +
+      sobranteRepeatBlock(editSobranteRows, 'edit_sobrante', t.sobranteMaterial) +
       '<div class="btn-row">' +
         '<button class="btn btn-primary btn-sm" type="submit">'+esc(tr('tapa.save'))+'</button>' +
         '<button class="btn btn-sm btn-ghost" type="button" data-action="cancel-edit-tapa">'+esc(tr('tapa.cancel'))+'</button>' +
@@ -1652,9 +1695,15 @@
         specItem(tr('spec.installDate'), fmtDate(t.fechaInstalacion)) +
         specItem(tr('spec.installer'), t.instaladorId? (workerById(t.instaladorId)?workerById(t.instaladorId).nombre:'—') : tr('spec.unassigned')) +
         (t.sobranteMaterial ? specItem(tr('spec.sobranteMaterial'), t.sobranteMaterial==='si'?tr('spec.yes'):tr('spec.no')) : '') +
-        (t.sobranteMaterial==='si' ? specItem(tr('spec.sobranteCantidad'), t.sobranteCantidad||'—') : '') +
-        (t.sobranteMaterial==='si' ? specItem(tr('spec.sobranteUbicacion'), t.sobranteUbicacion||'—') : '') +
       '</div>' +
+      (t.sobranteMaterial==='si' ?
+        '<fieldset><legend>'+esc(tr('corte.sobranteLegend'))+'</legend><div style="display:flex; flex-direction:column; gap:6px;">' +
+          sobranteRows(t).map(function(r){
+            return '<div class="card" style="padding:8px 10px; font-size:13px;">' +
+              trf('spec.sobranteRow',{c:r.cantidad||'—', u:r.ubicacion||'—'}) +
+            '</div>';
+          }).join('') +
+        '</div></fieldset>' : '') +
       (t.materialHistorial && t.materialHistorial.length ? materialHistorialBlock(t) : '') + (t.notas?('<div style="padding:0 16px 14px; font-size:13px; color:var(--text-muted);"><b>'+esc(tr('spec.notes'))+'</b> '+esc(t.notas)+'</div>'):'') + '</div>' +
       '<div class="timeline">' + STAGES.map(function(s,i){ return tlStage(t, s, i, w, isAdminView); }).join('') + '</div>'
     ;
@@ -1704,13 +1753,8 @@
       '</div>';
     }
     if(key==='corte'){
-      extra = '<fieldset><legend>'+esc(tr('corte.sobranteLegend'))+'</legend><div style="display:flex; flex-direction:column; gap:10px;">' +
-        radioRow('sobranteMaterial',[['si',tr('corte.si')],['no',tr('corte.no')]]) +
-        '<div class="grid2">' +
-          field(tr('corte.sobranteCantidad'),'text','sobranteCantidad',tr('corte.sobranteCantidadPh'),{value:t.sobranteCantidad}) +
-          field(tr('corte.sobranteUbicacion'),'text','sobranteUbicacion',tr('corte.sobranteUbicacionPh'),{value:t.sobranteUbicacion}) +
-        '</div>' +
-      '</div></fieldset>';
+      if(corteSobranteTapaId !== t.id){ corteSobranteRows = sobranteRows(t); corteSobranteTapaId = t.id; }
+      extra = sobranteRepeatBlock(corteSobranteRows, 'sobrante', t.sobranteMaterial);
     }
     if(key==='aprobacion'){
       return '' +
@@ -1736,8 +1780,8 @@
         (etapa.fotos.length===0 ? '<div class="photo-hint">'+esc(tr('stage.photoHint'))+'</div>' : '') +
       '</form>';
   }
-  function radioRow(name, opts){
-    return '<div class="btn-row">' + opts.map(function(o){ return '<label class="check-row" style="background:var(--surface-2); padding:7px 12px; border-radius:8px; border:1px solid var(--border);"><input type="radio" name="'+name+'" value="'+o[0]+'" required> '+esc(o[1])+'</label>'; }).join('') + '</div>';
+  function radioRow(name, opts, selected){
+    return '<div class="btn-row">' + opts.map(function(o){ return '<label class="check-row" style="background:var(--surface-2); padding:7px 12px; border-radius:8px; border:1px solid var(--border);"><input type="radio" name="'+name+'" value="'+o[0]+'" '+(selected===o[0]?'checked':'')+' required> '+esc(o[1])+'</label>'; }).join('') + '</div>';
   }
 
   /* ============ overlays: falla form, photo lightbox ============ */
@@ -1804,6 +1848,9 @@
   }
   var fallaPhotoData = null;
   var editPlanoPhotoData = null;
+  var editSobranteRows = [{cantidad:'',ubicacion:''}];
+  var corteSobranteRows = [{cantidad:'',ubicacion:''}];
+  var corteSobranteTapaId = null;
 
   /* ============ event binding ============ */
   function bindGlobalHandlers(root){
@@ -1981,6 +2028,10 @@
     if(action==='close-overlay-bg'){ if(!ev || el===ev.target){ closeOverlay(); } return; }
     if(action==='view-photo'){ openOverlay('photo',{tapaId:el.getAttribute('data-tapa'), stage:el.getAttribute('data-stage'), idx:parseInt(el.getAttribute('data-idx'),10)}); return; }
     if(action==='view-plano'){ openOverlay('planofoto',{tapaId:el.getAttribute('data-tapa')}); return; }
+    if(action==='add-sobrante-row'){ corteSobranteRows = readSobranteRowsFromDom('sobrante'); corteSobranteRows.push({cantidad:'',ubicacion:''}); render(); return; }
+    if(action==='remove-sobrante-row'){ var srIdx=parseInt(el.getAttribute('data-idx'),10); corteSobranteRows = readSobranteRowsFromDom('sobrante'); corteSobranteRows.splice(srIdx,1); render(); return; }
+    if(action==='add-edit_sobrante-row'){ editSobranteRows = readSobranteRowsFromDom('edit_sobrante'); editSobranteRows.push({cantidad:'',ubicacion:''}); render(); return; }
+    if(action==='remove-edit_sobrante-row'){ var esrIdx=parseInt(el.getAttribute('data-idx'),10); editSobranteRows = readSobranteRowsFromDom('edit_sobrante'); editSobranteRows.splice(esrIdx,1); render(); return; }
     if(action==='open-draw'){ openOverlay('draw',{target:el.getAttribute('data-target'), idx:el.getAttribute('data-idx')}); return; }
     if(action==='draw-clear'){ var dc=document.getElementById('draw-canvas'); if(dc && drawCtx) drawCtx.clearRect(0,0,dc.width,dc.height); return; }
     if(action==='draw-save'){
@@ -2005,7 +2056,7 @@
       } else { closeOverlay(); }
       return;
     }
-    if(action==='edit-tapa'){ editingTapaId = el.getAttribute('data-tapa'); editPlanoPhotoData = null; render(); return; }
+    if(action==='edit-tapa'){ editingTapaId = el.getAttribute('data-tapa'); editPlanoPhotoData = null; var editT=state.tapas.filter(function(x){return x.id===editingTapaId;})[0]; editSobranteRows = editT ? sobranteRows(editT) : [{cantidad:'',ubicacion:''}]; render(); return; }
     if(action==='cancel-edit-tapa'){ editingTapaId = null; render(); return; }
     if(action==='delete-tapa'){
       var delId = el.getAttribute('data-tapa');
@@ -2191,12 +2242,13 @@
         t.notas = fd.get('notas') || '';
         var editSobrante = fd.get('sobranteMaterial');
         if(editSobrante!==null && editSobrante!==undefined) t.sobranteMaterial = editSobrante;
-        t.sobranteCantidad = fd.get('sobranteCantidad') || '';
-        t.sobranteUbicacion = fd.get('sobranteUbicacion') || '';
+        t.sobrantes = collectSobrantesFromDom('edit_sobrante');
+        delete t.sobranteCantidad; delete t.sobranteUbicacion;
         t.porDibujo = !!fd.get('porDibujo');
         if(editPlanoPhotoData) t.planoFoto = editPlanoPhotoData;
       });
       editPlanoPhotoData = null;
+      editSobranteRows = [{cantidad:'',ubicacion:''}];
       editingTapaId = null;
       render();
       return;
@@ -2254,15 +2306,15 @@
     var matSerial = fd.get('materialSerial');
     var matUbicacion = fd.get('materialUbicacion');
     var sobrante = fd.get('sobranteMaterial');
-    var sobranteCant = fd.get('sobranteCantidad');
-    var sobranteUbic = fd.get('sobranteUbicacion');
     if(comentario && comentario.trim()) t.etapas[stage].comentarios.push({autor:currentWorker().nombre, texto:comentario.trim(), fecha:nowISO()});
     if(bsMedida!==null && bsMedida!==undefined && bsMedida.trim()) t.backsplashMedida = bsMedida.trim();
     if(matSerial!==null && matSerial!==undefined && matSerial.trim()) t.material.serial = matSerial.trim();
     if(matUbicacion!==null && matUbicacion!==undefined && matUbicacion.trim()) t.material.ubicacion = matUbicacion.trim();
-    if(sobrante!==null && sobrante!==undefined) t.sobranteMaterial = sobrante;
-    if(sobranteCant!==null && sobranteCant!==undefined && sobranteCant.trim()) t.sobranteCantidad = sobranteCant.trim();
-    if(sobranteUbic!==null && sobranteUbic!==undefined && sobranteUbic.trim()) t.sobranteUbicacion = sobranteUbic.trim();
+    if(sobrante!==null && sobrante!==undefined){
+      t.sobranteMaterial = sobrante;
+      t.sobrantes = collectSobrantesFromFormData(fd, 'sobrante');
+      delete t.sobranteCantidad; delete t.sobranteUbicacion;
+    }
   }
   function doStageStart(el){
     var tapaId=el.getAttribute('data-tapa'), stage=el.getAttribute('data-stage');
@@ -2284,6 +2336,7 @@
     });
     var tapaAfter = state.tapas.filter(function(x){return x.id===tapaId;})[0];
     if(tapaAfter) notifyStageWorkers(tapaAfter, currentStageKey(tapaAfter));
+    corteSobranteTapaId = null;
   }
   function doStageRetry(el){
     var tapaId=el.getAttribute('data-tapa'), stage=el.getAttribute('data-stage');
